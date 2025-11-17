@@ -1,10 +1,21 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X, User, Plus } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X, User, Plus, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const menuItems = [
     { label: "Properties", href: "/" },
@@ -38,16 +49,50 @@ const Header = () => {
 
           {/* Right Actions */}
           <div className="hidden md:flex items-center space-x-3">
-            <Button variant="ghost" size="sm" className="text-foreground/80">
-              <User className="h-4 w-4 mr-2" />
-              Sign In
-            </Button>
-            <Link to="/post-ad">
-              <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full">
-                <Plus className="h-4 w-4 mr-2" />
-                Post Free Ad
-              </Button>
-            </Link>
+            {user ? (
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="text-foreground/80">
+                      <User className="h-4 w-4 mr-2" />
+                      My Account
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate("/my-listings")}>
+                      My Listings
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => signOut()}>
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Link to="/post-ad">
+                  <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Post Free Ad
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/auth">
+                  <Button variant="ghost" size="sm" className="text-foreground/80">
+                    <User className="h-4 w-4 mr-2" />
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/post-ad">
+                  <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Post Free Ad
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -73,16 +118,54 @@ const Header = () => {
               </Link>
             ))}
             <div className="pt-3 border-t space-y-2">
-              <Button variant="ghost" size="sm" className="w-full justify-start text-foreground/80">
-                <User className="h-4 w-4 mr-2" />
-                Sign In
-              </Button>
-              <Link to="/post-ad" onClick={() => setIsMenuOpen(false)}>
-                <Button size="sm" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Post Free Ad
-                </Button>
-              </Link>
+              {user ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start text-foreground/80"
+                    onClick={() => {
+                      navigate("/my-listings");
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    My Listings
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start text-foreground/80"
+                    onClick={() => {
+                      signOut();
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </Button>
+                  <Link to="/post-ad" onClick={() => setIsMenuOpen(false)}>
+                    <Button size="sm" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Post Free Ad
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                    <Button variant="ghost" size="sm" className="w-full justify-start text-foreground/80">
+                      <User className="h-4 w-4 mr-2" />
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link to="/post-ad" onClick={() => setIsMenuOpen(false)}>
+                    <Button size="sm" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Post Free Ad
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}

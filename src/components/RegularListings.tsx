@@ -1,33 +1,78 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { MapPin } from "lucide-react";
+import { MapPin, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Listing {
   id: string;
   title: string;
-  price: string;
-  location: string;
-  category: string;
-  images: string[];
-  isFeatured: boolean;
+  price: number;
+  location_city: string;
+  location_locality: string | null;
+  category_id: string;
+  images: { image_url: string }[];
+  categories: { name: string; slug: string };
 }
 
 const RegularListings = () => {
   const [listings, setListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("properties");
 
   useEffect(() => {
     loadListings();
-  }, []);
+  }, [selectedCategory]);
 
-  const loadListings = () => {
-    const stored = localStorage.getItem("listings");
-    if (stored) {
-      const allListings: Listing[] = JSON.parse(stored);
-      setListings(allListings);
+  const loadListings = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("listings")
+        .select(`
+          id,
+          title,
+          price,
+          location_city,
+          location_locality,
+          category_id,
+          categories (name, slug),
+          listing_images (image_url)
+        `)
+        .eq("is_featured", false)
+        .eq("status", "active")
+        .eq("categories.slug", selectedCategory)
+        .order("created_at", { ascending: false })
+        .limit(12);
+
+      if (error) throw error;
+
+      setListings(data as any || []);
+    } catch (error) {
+      console.error("Error loading regular listings:", error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  const categories = [
+    { label: "Properties", value: "properties" },
+    { label: "Automobiles", value: "automobiles" },
+    { label: "Jewellery", value: "jewellery" },
+  ];
+
+  if (loading) {
+    return (
+      <section className="py-12 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (listings.length === 0) {
     return null;
@@ -46,14 +91,31 @@ const RegularListings = () => {
             </p>
           </div>
 
+          {/* Category Tabs */}
+          <div className="flex flex-wrap justify-center gap-3">
+            {categories.map((cat) => (
+              <button
+                key={cat.value}
+                onClick={() => setSelectedCategory(cat.value)}
+                className={`px-6 py-2 rounded-full font-medium transition-all ${
+                  selectedCategory === cat.value
+                    ? "bg-primary text-primary-foreground shadow-md"
+                    : "bg-background text-foreground hover:bg-secondary"
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {listings.map((listing) => (
               <Link key={listing.id} to={`/listing/${listing.id}`}>
                 <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <div className="relative aspect-video bg-muted">
-                    {listing.images[0] ? (
+                    {listing.images && listing.images.length > 0 ? (
                       <img
-                        src={listing.images[0]}
+                        src={listing.images[0].image_url}
                         alt={listing.title}
                         className="w-full h-full object-cover"
                       />
@@ -62,23 +124,24 @@ const RegularListings = () => {
                         No Image
                       </div>
                     )}
-                    {listing.isFeatured && (
-                      <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground">
-                        Featured
-                      </Badge>
-                    )}
                   </div>
                   <CardContent className="p-4 space-y-2">
                     <h3 className="font-semibold text-foreground line-clamp-1">
                       {listing.title}
                     </h3>
-                    <p className="text-xl font-bold text-primary">{listing.price}</p>
+                    <p className="text-xl font-bold text-primary">
+                      ₹{listing.price.toLocaleString()}
+                    </p>
                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
                       <MapPin className="h-4 w-4" />
-                      <span className="line-clamp-1">{listing.location}</span>
+                      <span className="line-clamp-1">
+                        {listing.location_locality
+                          ? `${listing.location_locality}, ${listing.location_city}`
+                          : listing.location_city}
+                      </span>
                     </div>
                     <Badge variant="secondary" className="text-xs">
-                      {listing.category}
+                      {listing.categories.name}
                     </Badge>
                   </CardContent>
                 </Card>
