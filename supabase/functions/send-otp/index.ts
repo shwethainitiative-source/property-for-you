@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
-import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 
 
@@ -71,59 +70,46 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
     `;
 
-    // Initialize SMTP client with Gmail
-    const gmailUser = Deno.env.get("GMAIL_USER");
-    const gmailPassword = Deno.env.get("GMAIL_APP_PASSWORD");
-
-    if (!gmailUser || !gmailPassword) {
-      console.error("Gmail credentials not configured");
-      throw new Error("Email service not configured properly");
+    // Send email using Resend (more reliable than Gmail SMTP in edge functions)
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    
+    if (!resendApiKey) {
+      console.error("RESEND_API_KEY not configured");
+      throw new Error("Email service not configured");
     }
 
-    const smtpClient = new SMTPClient({
-      connection: {
-        hostname: "smtp.gmail.com",
-        port: 587,
-        tls: true,
-        auth: {
-          username: gmailUser,
-          password: gmailPassword,
-        },
-      },
-    });
-
     try {
-      console.log("Attempting to send OTP email to:", email);
+      console.log("Sending OTP email to:", email);
       
-      await smtpClient.send({
-        from: gmailUser,
-        to: email,
-        subject,
-        html,
+      const emailResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${resendApiKey}`,
+        },
+        body: JSON.stringify({
+          from: "ThePropertyForYou <onboarding@resend.dev>",
+          to: [email],
+          subject,
+          html,
+        }),
       });
 
-      console.log("OTP email sent successfully to:", email);
-      await smtpClient.close();
+      const emailData = await emailResponse.json();
+
+      if (!emailResponse.ok) {
+        console.error("Resend API error:", emailData);
+        throw new Error(emailData.message || "Failed to send email");
+      }
+
+      console.log("OTP email sent successfully:", emailData.id);
     } catch (emailError: any) {
-      console.error("Nodemailer/Gmail SMTP error details:", {
-        message: emailError.message,
-        code: emailError.code,
-        command: emailError.command,
-        response: emailError.response,
-        stack: emailError.stack,
-      });
+      console.error("Email sending error:", emailError);
       
       // Delete the OTP since email failed
       await supabase.from("otp_codes").delete().eq("email", email).eq("otp_code", otpCode);
       
-      // Close connection on error
-      try {
-        await smtpClient.close();
-      } catch (closeError) {
-        console.error("Error closing SMTP connection:", closeError);
-      }
-
-      throw new Error(`Failed to send email via Gmail SMTP: ${emailError.message || emailError}`);
+      throw new Error(`Failed to send email: ${emailError.message || emailError}`);
     }
 
     return new Response(
