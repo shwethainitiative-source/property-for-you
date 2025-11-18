@@ -2,18 +2,6 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
-const smtpClient = new SMTPClient({
-  connection: {
-    hostname: "smtp.gmail.com",
-    port: 587,
-    tls: true,
-    auth: {
-      username: Deno.env.get("GMAIL_USER")!,
-      password: Deno.env.get("GMAIL_APP_PASSWORD")!,
-    },
-  },
-});
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -81,6 +69,19 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
     `;
 
+    // Create SMTP client for this request
+    const smtpClient = new SMTPClient({
+      connection: {
+        hostname: "smtp.gmail.com",
+        port: 587,
+        tls: true,
+        auth: {
+          username: Deno.env.get("GMAIL_USER")!,
+          password: Deno.env.get("GMAIL_APP_PASSWORD")!,
+        },
+      },
+    });
+
     try {
       await smtpClient.send({
         from: Deno.env.get("GMAIL_USER")!,
@@ -91,10 +92,20 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
       console.log("OTP sent successfully to:", email);
+      
+      // Close the connection
+      await smtpClient.close();
     } catch (emailError: any) {
       console.error("Gmail SMTP error:", emailError);
       // Delete the OTP since email failed
       await supabase.from("otp_codes").delete().eq("email", email).eq("otp_code", otpCode);
+      
+      try {
+        await smtpClient.close();
+      } catch (closeError) {
+        console.error("Error closing SMTP connection:", closeError);
+      }
+      
       throw new Error(`Failed to send email: ${emailError.message}`);
     }
 
