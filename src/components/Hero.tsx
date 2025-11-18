@@ -14,8 +14,31 @@ const Hero = () => {
   ];
 
   const handleSearch = () => {
-    // Search functionality will be implemented with listings
-    console.log("Searching for:", searchQuery);
+    if (!searchQuery.trim()) return;
+
+    const query = searchQuery.toLowerCase();
+
+    // Intelligent search routing
+    const propertyKeywords = ["bhk", "apartment", "house", "villa", "plot", "land", "property", "flat"];
+    const autoKeywords = ["car", "bike", "honda", "maruti", "hyundai", "toyota", "suzuki", "vehicle", "km"];
+    const jewelleryKeywords = ["gold", "diamond", "silver", "ring", "necklace", "earring", "jewellery", "jewelry"];
+
+    if (propertyKeywords.some(keyword => query.includes(keyword))) {
+      window.location.href = "/properties";
+    } else if (autoKeywords.some(keyword => query.includes(keyword))) {
+      window.location.href = "/automobiles";
+    } else if (jewelleryKeywords.some(keyword => query.includes(keyword))) {
+      window.location.href = "/jewellery";
+    } else {
+      // Default to current tab category
+      if (activeTab === "properties") {
+        window.location.href = "/properties";
+      } else if (activeTab === "automobiles") {
+        window.location.href = "/automobiles";
+      } else if (activeTab === "jewellery") {
+        window.location.href = "/jewellery";
+      }
+    }
   };
 
   return (
