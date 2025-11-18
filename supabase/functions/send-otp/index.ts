@@ -75,7 +75,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Send email with OTP
     const subject =
       purpose === "signup"
-        ? "Verify Your Email - ThePropertyForYou"
+        ? "Verify Your Email - ThePropertyForYou2"
         : "Reset Your Password - ThePropertyForYou";
 
     const html = `
