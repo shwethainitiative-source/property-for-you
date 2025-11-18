@@ -1,8 +1,18 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
-import { Resend } from "https://esm.sh/resend@4.0.0";
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const smtpClient = new SMTPClient({
+  connection: {
+    hostname: "smtp.gmail.com",
+    port: 587,
+    tls: true,
+    auth: {
+      username: Deno.env.get("GMAIL_USER")!,
+      password: Deno.env.get("GMAIL_APP_PASSWORD")!,
+    },
+  },
+});
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -81,26 +91,26 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
     `;
 
-    const emailResponse = await resend.emails.send({
-      from: "ThePropertyForYou <onboarding@resend.dev>",
-      to: [email],
-      subject,
-      html,
-    });
+    try {
+      await smtpClient.send({
+        from: Deno.env.get("GMAIL_USER")!,
+        to: email,
+        subject,
+        content: html,
+        html: html,
+      });
 
-    // Check if email sending failed
-    if (emailResponse.error) {
-      console.error("Resend error:", emailResponse.error);
+      console.log("OTP sent successfully to:", email);
+    } catch (emailError: any) {
+      console.error("Gmail SMTP error:", emailError);
       // Delete the OTP since email failed
       await supabase
         .from("otp_codes")
         .delete()
         .eq("email", email)
         .eq("otp_code", otpCode);
-      throw new Error(`Failed to send email: ${emailResponse.error.message}`);
+      throw new Error(`Failed to send email: ${emailError.message}`);
     }
-
-    console.log("OTP sent successfully:", emailResponse);
 
     return new Response(
       JSON.stringify({
