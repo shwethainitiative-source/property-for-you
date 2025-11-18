@@ -16,8 +16,7 @@ const smtpClient = new SMTPClient({
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 interface SendOTPRequest {
@@ -34,13 +33,10 @@ const handler = async (req: Request): Promise<Response> => {
     const { email, purpose }: SendOTPRequest = await req.json();
 
     if (!email || !purpose) {
-      return new Response(
-        JSON.stringify({ error: "Email and purpose are required" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
-      );
+      return new Response(JSON.stringify({ error: "Email and purpose are required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
     // Generate 6-digit OTP
@@ -52,11 +48,7 @@ const handler = async (req: Request): Promise<Response> => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Clean up old OTPs for this email and purpose
-    await supabase
-      .from("otp_codes")
-      .delete()
-      .eq("email", email)
-      .eq("purpose", purpose);
+    await supabase.from("otp_codes").delete().eq("email", email).eq("purpose", purpose);
 
     // Store OTP in database (expires in 10 minutes)
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
@@ -74,9 +66,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email with OTP
     const subject =
-      purpose === "signup"
-        ? "Verify Your Email - ThePropertyForYou2"
-        : "Reset Your Password - ThePropertyForYou";
+      purpose === "signup" ? "Verify Your Email - ThePropertyForYou2" : "Reset Your Password - ThePropertyForYou";
 
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -104,11 +94,7 @@ const handler = async (req: Request): Promise<Response> => {
     } catch (emailError: any) {
       console.error("Gmail SMTP error:", emailError);
       // Delete the OTP since email failed
-      await supabase
-        .from("otp_codes")
-        .delete()
-        .eq("email", email)
-        .eq("otp_code", otpCode);
+      await supabase.from("otp_codes").delete().eq("email", email).eq("otp_code", otpCode);
       throw new Error(`Failed to send email: ${emailError.message}`);
     }
 
@@ -123,17 +109,14 @@ const handler = async (req: Request): Promise<Response> => {
           "Content-Type": "application/json",
           ...corsHeaders,
         },
-      }
+      },
     );
   } catch (error: any) {
     console.error("Error in send-otp function:", error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
-    );
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
   }
 };
 
