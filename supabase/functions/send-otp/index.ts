@@ -1,7 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
-import { Resend } from "https://esm.sh/resend@2.0.0";
-const resend = new Resend(Deno.env.get("RESEND_API_KEY")!);
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 
 
@@ -72,20 +71,59 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
     `;
 
+    // Initialize SMTP client with Gmail
+    const gmailUser = Deno.env.get("GMAIL_USER");
+    const gmailPassword = Deno.env.get("GMAIL_APP_PASSWORD");
+
+    if (!gmailUser || !gmailPassword) {
+      console.error("Gmail credentials not configured");
+      throw new Error("Email service not configured properly");
+    }
+
+    const smtpClient = new SMTPClient({
+      connection: {
+        hostname: "smtp.gmail.com",
+        port: 587,
+        tls: true,
+        auth: {
+          username: gmailUser,
+          password: gmailPassword,
+        },
+      },
+    });
+
     try {
-      const emailResponse = await resend.emails.send({
-        from: "ThePropertyForYou <onboarding@resend.dev>",
-        to: [email],
+      console.log("Attempting to send OTP email to:", email);
+      
+      await smtpClient.send({
+        from: gmailUser,
+        to: email,
         subject,
         html,
       });
 
-      console.log("OTP email queued:", (emailResponse as any)?.data?.id ?? emailResponse);
+      console.log("OTP email sent successfully to:", email);
+      await smtpClient.close();
     } catch (emailError: any) {
-      console.error("Resend error:", emailError);
+      console.error("Nodemailer/Gmail SMTP error details:", {
+        message: emailError.message,
+        code: emailError.code,
+        command: emailError.command,
+        response: emailError.response,
+        stack: emailError.stack,
+      });
+      
       // Delete the OTP since email failed
       await supabase.from("otp_codes").delete().eq("email", email).eq("otp_code", otpCode);
-      throw new Error(`Failed to send email: ${emailError.message || emailError}`);
+      
+      // Close connection on error
+      try {
+        await smtpClient.close();
+      } catch (closeError) {
+        console.error("Error closing SMTP connection:", closeError);
+      }
+
+      throw new Error(`Failed to send email via Gmail SMTP: ${emailError.message || emailError}`);
     }
 
     return new Response(
