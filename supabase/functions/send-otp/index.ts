@@ -88,6 +88,18 @@ const handler = async (req: Request): Promise<Response> => {
       html,
     });
 
+    // Check if email sending failed
+    if (emailResponse.error) {
+      console.error("Resend error:", emailResponse.error);
+      // Delete the OTP since email failed
+      await supabase
+        .from("otp_codes")
+        .delete()
+        .eq("email", email)
+        .eq("otp_code", otpCode);
+      throw new Error(`Failed to send email: ${emailResponse.error.message}`);
+    }
+
     console.log("OTP sent successfully:", emailResponse);
 
     return new Response(
