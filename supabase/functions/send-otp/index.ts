@@ -54,7 +54,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email with OTP
     const subject =
-      purpose === "signup" ? "Verify Your Email - ThePropertyForYou2" : "Reset Your Password - ThePropertyForYou";
+      purpose === "signup" ? "Verify Your Email - ThePropertyForYou2" : "Reset Your Password - Thepropertyforyou2025";
 
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -92,20 +92,20 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
       console.log("OTP sent successfully to:", email);
-      
+
       // Close the connection
       await smtpClient.close();
     } catch (emailError: any) {
       console.error("Gmail SMTP error:", emailError);
       // Delete the OTP since email failed
       await supabase.from("otp_codes").delete().eq("email", email).eq("otp_code", otpCode);
-      
+
       try {
         await smtpClient.close();
       } catch (closeError) {
         console.error("Error closing SMTP connection:", closeError);
       }
-      
+
       throw new Error(`Failed to send email: ${emailError.message}`);
     }
 
