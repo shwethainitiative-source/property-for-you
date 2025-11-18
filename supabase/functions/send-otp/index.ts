@@ -87,7 +87,6 @@ const handler = async (req: Request): Promise<Response> => {
         from: Deno.env.get("GMAIL_USER")!,
         to: email,
         subject,
-        content: html,
         html: html,
       });
 
