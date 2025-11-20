@@ -18,11 +18,11 @@ const Header = () => {
   const navigate = useNavigate();
 
   const menuItems = [
-    { label: "Properties", href: "/" },
-    { label: "Automobiles", href: "/" },
-    { label: "Jewellery", href: "/" },
-    { label: "Experts", href: "/" },
-    { label: "News", href: "/" },
+    { label: "Properties", href: "/properties" },
+    { label: "Automobiles", href: "/automobiles" },
+    { label: "Jewellery", href: "/jewellery" },
+    { label: "Experts", href: "/experts" },
+    { label: "News", href: "/news" },
   ];
 
   return (
