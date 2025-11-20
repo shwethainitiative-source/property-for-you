@@ -10,6 +10,9 @@ import Auth from "./pages/Auth";
 import Properties from "./pages/Properties";
 import Automobiles from "./pages/Automobiles";
 import Jewellery from "./pages/Jewellery";
+import Experts from "./pages/Experts";
+import News from "./pages/News";
+import MyListings from "./pages/MyListings";
 import Payment from "./pages/Payment";
 import NotFound from "./pages/NotFound";
 
@@ -28,6 +31,9 @@ const App = () => (
           <Route path="/properties" element={<Properties />} />
           <Route path="/automobiles" element={<Automobiles />} />
           <Route path="/jewellery" element={<Jewellery />} />
+          <Route path="/experts" element={<Experts />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/my-listings" element={<MyListings />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/listing/:id" element={<ListingDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
