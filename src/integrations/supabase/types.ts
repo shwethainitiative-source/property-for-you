@@ -199,6 +199,69 @@ export type Database = {
         }
         Relationships: []
       }
+      sponsorships: {
+        Row: {
+          banner_url: string
+          business_name: string
+          clicks: number
+          contact_person: string
+          created_at: string
+          destination_url: string
+          duration: number
+          email: string
+          end_date: string | null
+          id: string
+          payment_id: string | null
+          payment_status: string
+          phone: string
+          price: number
+          start_date: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          banner_url: string
+          business_name: string
+          clicks?: number
+          contact_person: string
+          created_at?: string
+          destination_url: string
+          duration: number
+          email: string
+          end_date?: string | null
+          id?: string
+          payment_id?: string | null
+          payment_status?: string
+          phone: string
+          price: number
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          banner_url?: string
+          business_name?: string
+          clicks?: number
+          contact_person?: string
+          created_at?: string
+          destination_url?: string
+          duration?: number
+          email?: string
+          end_date?: string | null
+          id?: string
+          payment_id?: string | null
+          payment_status?: string
+          phone?: string
+          price?: number
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

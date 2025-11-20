@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Metrics from "@/components/Metrics";
+import ActiveSponsorships from "@/components/ActiveSponsorships";
 import SponsoredSection from "@/components/SponsoredSection";
 import FeaturedListings from "@/components/FeaturedListings";
 import WhyChooseUs from "@/components/WhyChooseUs";
@@ -14,6 +15,7 @@ const Index = () => {
       <main>
         <Hero />
         <Metrics />
+        <ActiveSponsorships />
         <SponsoredSection />
         <FeaturedListings />
         <WhyChooseUs />
