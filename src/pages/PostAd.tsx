@@ -51,12 +51,19 @@ const PostAd = () => {
     locality: "",
   });
 
+  // Load saved form data from sessionStorage on mount
   useEffect(() => {
-    if (!loading && !user) {
-      toast.error("Please login to post an ad");
-      navigate("/auth?redirect=/post-ad");
+    const savedFormData = sessionStorage.getItem("pendingAdFormData");
+    if (savedFormData) {
+      const parsed = JSON.parse(savedFormData);
+      setFormData(parsed.formData);
+      setCategory(parsed.category);
+      setAgreedToTerms(parsed.agreedToTerms);
+      // Clear the saved data
+      sessionStorage.removeItem("pendingAdFormData");
+      toast.info("Your form data has been restored. Please continue posting your ad.");
     }
-  }, [user, loading, navigate]);
+  }, []);
 
   useEffect(() => {
     const fetchCategoryId = async () => {
@@ -119,18 +126,7 @@ const PostAd = () => {
   };
 
   const handleSubmit = async (isFeatured: boolean) => {
-    if (!user) {
-      toast.error("Please login to post an ad");
-      navigate("/auth?redirect=/post-ad");
-      return;
-    }
-
-    if (!agreedToTerms) {
-      toast.error("Please agree to the terms and conditions");
-      return;
-    }
-
-    // Validate required fields
+    // Validate required fields first
     if (!formData.title.trim()) {
       toast.error("Please enter a title");
       return;
@@ -153,6 +149,28 @@ const PostAd = () => {
 
     if (images.length === 0) {
       toast.error("Please upload at least one image");
+      return;
+    }
+
+    if (!agreedToTerms) {
+      toast.error("Please agree to the terms and conditions");
+      return;
+    }
+
+    // Check authentication AFTER validation
+    if (!user) {
+      // Save form data to sessionStorage
+      const dataToSave = {
+        formData,
+        category,
+        agreedToTerms,
+        isFeatured
+      };
+      sessionStorage.setItem("pendingAdFormData", JSON.stringify(dataToSave));
+      sessionStorage.setItem("pendingAdType", isFeatured ? "paid" : "free");
+      
+      toast.error("Please login to post an ad");
+      navigate("/auth?redirect=/post-ad");
       return;
     }
 
@@ -560,10 +578,6 @@ const PostAd = () => {
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
-
-  if (!user) {
-    return null;
   }
 
   return (
