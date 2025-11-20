@@ -54,7 +54,7 @@ const PostAd = () => {
   useEffect(() => {
     if (!loading && !user) {
       toast.error("Please login to post an ad");
-      navigate("/auth");
+      navigate("/auth?redirect=/post-ad");
     }
   }, [user, loading, navigate]);
 
@@ -121,12 +121,38 @@ const PostAd = () => {
   const handleSubmit = async (isFeatured: boolean) => {
     if (!user) {
       toast.error("Please login to post an ad");
-      navigate("/auth");
+      navigate("/auth?redirect=/post-ad");
       return;
     }
 
     if (!agreedToTerms) {
       toast.error("Please agree to the terms and conditions");
+      return;
+    }
+
+    // Validate required fields
+    if (!formData.title.trim()) {
+      toast.error("Please enter a title");
+      return;
+    }
+
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      toast.error("Please enter a valid price");
+      return;
+    }
+
+    if (!formData.description.trim()) {
+      toast.error("Please enter a description");
+      return;
+    }
+
+    if (!formData.city.trim()) {
+      toast.error("Please enter a city");
+      return;
+    }
+
+    if (images.length === 0) {
+      toast.error("Please upload at least one image");
       return;
     }
 
