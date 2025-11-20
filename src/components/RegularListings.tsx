@@ -12,8 +12,8 @@ interface Listing {
   location_city: string;
   location_locality: string | null;
   category_id: string;
-  images: { image_url: string }[];
-  categories: { name: string; slug: string };
+  listing_images: { image_url: string }[];
+  categories: { name: string; slug: string } | null;
 }
 
 const RegularListings = () => {
@@ -113,9 +113,9 @@ const RegularListings = () => {
               <Link key={listing.id} to={`/listing/${listing.id}`}>
                 <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <div className="relative aspect-video bg-muted">
-                    {listing.images && listing.images.length > 0 ? (
+                    {listing.listing_images && listing.listing_images.length > 0 ? (
                       <img
-                        src={listing.images[0].image_url}
+                        src={listing.listing_images[0].image_url}
                         alt={listing.title}
                         className="w-full h-full object-cover"
                       />
@@ -141,7 +141,7 @@ const RegularListings = () => {
                       </span>
                     </div>
                     <Badge variant="secondary" className="text-xs">
-                      {listing.categories.name}
+                      {listing.categories?.name || 'Uncategorized'}
                     </Badge>
                   </CardContent>
                 </Card>

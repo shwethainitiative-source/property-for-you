@@ -14,7 +14,7 @@ interface Listing {
   location_locality: string | null;
   category_id: string;
   listing_images: { image_url: string }[];
-  categories: { name: string; slug: string };
+  categories: { name: string; slug: string } | null;
 }
 
 const FeaturedListings = () => {
@@ -157,7 +157,7 @@ const FeaturedListings = () => {
                         </span>
                       </div>
                       <Badge variant="secondary" className="text-xs">
-                        {listing.categories.name}
+                        {listing.categories?.name || 'Uncategorized'}
                       </Badge>
                     </CardContent>
                   </Card>
