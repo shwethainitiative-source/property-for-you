@@ -16,6 +16,10 @@ type ForgotPasswordStep = "email" | "verify-otp" | "new-password";
 const Auth = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  
+  // Get redirect path from URL params or default to home
+  const searchParams = new URLSearchParams(window.location.search);
+  const redirectTo = searchParams.get('redirect') || '/';
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState("");
@@ -56,7 +60,7 @@ const Auth = () => {
       if (error) throw error;
 
       toast.success("Successfully logged in!");
-      navigate("/");
+      navigate(redirectTo);
     } catch (error: any) {
       toast.error(error.message || "Failed to login");
     } finally {
@@ -140,7 +144,7 @@ const Auth = () => {
 
       toast.success("Account created successfully! You can now login.");
       
-      // Reset form
+      // Reset form and stay on signup tab for user to login
       setSignupStep("form");
       setSignupName("");
       setSignupEmail("");

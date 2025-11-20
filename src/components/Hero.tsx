@@ -18,10 +18,10 @@ const Hero = () => {
 
     const query = searchQuery.toLowerCase();
 
-    // Intelligent search routing
-    const propertyKeywords = ["bhk", "apartment", "house", "villa", "plot", "land", "property", "flat"];
-    const autoKeywords = ["car", "bike", "honda", "maruti", "hyundai", "toyota", "suzuki", "vehicle", "km"];
-    const jewelleryKeywords = ["gold", "diamond", "silver", "ring", "necklace", "earring", "jewellery", "jewelry"];
+    // Intelligent search routing with enhanced keywords
+    const propertyKeywords = ["bhk", "2bhk", "3bhk", "4bhk", "apartment", "house", "villa", "plot", "land", "property", "flat", "room", "bedroom", "residential", "commercial"];
+    const autoKeywords = ["car", "bike", "honda", "maruti", "hyundai", "toyota", "suzuki", "vehicle", "km", "automobile", "scooter", "motorcycle", "suv", "sedan"];
+    const jewelleryKeywords = ["gold", "diamond", "silver", "ring", "necklace", "earring", "jewellery", "jewelry", "platinum", "bracelet", "pendant"];
 
     if (propertyKeywords.some(keyword => query.includes(keyword))) {
       window.location.href = "/properties";

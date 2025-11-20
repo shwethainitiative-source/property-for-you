@@ -13,6 +13,7 @@ interface Listing {
   price: number;
   location_city: string;
   location_locality: string | null;
+  is_featured: boolean;
   listing_images: { image_url: string }[];
 }
 
@@ -43,11 +44,12 @@ const Properties = () => {
           price,
           location_city,
           location_locality,
+          is_featured,
           listing_images(image_url)
         `)
         .eq("category_id", categories.id)
         .eq("status", "active")
-        .eq("is_featured", false)
+        .order("is_featured", { ascending: false })
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -97,6 +99,11 @@ const Properties = () => {
                     <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                       No image
                     </div>
+                  )}
+                  {listing.is_featured && (
+                    <Badge className="absolute top-2 left-2 bg-accent text-accent-foreground">
+                      Featured
+                    </Badge>
                   )}
                   <Badge className="absolute top-2 right-2 bg-primary">
                     Properties
