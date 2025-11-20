@@ -23,6 +23,7 @@ const Header = () => {
     { label: "Jewellery", href: "/jewellery" },
     { label: "Experts", href: "/experts" },
     { label: "News", href: "/news" },
+    { label: "Become a Sponsor", href: "/sponsorship-apply" },
   ];
 
   return (
