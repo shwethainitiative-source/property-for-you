@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { FilterDrawer } from "@/components/FilterDrawer";
-import { Button } from "@/components/ui/button";
 import { ListingSort } from "@/components/ListingSort";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { MapPin, Filter } from "lucide-react";
 import { FavoriteButton } from "@/components/FavoriteButton";
@@ -28,12 +28,14 @@ interface Listing {
   is_featured: boolean;
   attributes: any;
   created_at: string;
+  category_id: string;
   listing_images: { image_url: string }[];
+  categories: { name: string };
 }
 
 const ITEMS_PER_PAGE = 12;
 
-const Automobiles = () => {
+const AllListings = () => {
   const navigate = useNavigate();
   const [listings, setListings] = useState<Listing[]>([]);
   const [filteredListings, setFilteredListings] = useState<Listing[]>([]);
@@ -46,9 +48,6 @@ const Automobiles = () => {
     location: "",
     minPrice: "",
     maxPrice: "",
-    brand: "",
-    fuelType: "",
-    year: "",
   });
 
   useEffect(() => {
@@ -61,14 +60,6 @@ const Automobiles = () => {
 
   const fetchListings = async () => {
     try {
-      const { data: categories } = await supabase
-        .from("categories")
-        .select("id")
-        .eq("slug", "automobiles")
-        .single();
-
-      if (!categories) return;
-
       const { data, error } = await supabase
         .from("listings")
         .select(`
@@ -80,16 +71,17 @@ const Automobiles = () => {
           is_featured,
           attributes,
           created_at,
-          listing_images(image_url)
+          category_id,
+          listing_images(image_url),
+          categories(name)
         `)
-        .eq("category_id", categories.id)
         .eq("status", "active")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
       setListings(data || []);
     } catch (error) {
-      console.error("Error fetching automobiles:", error);
+      console.error("Error fetching listings:", error);
     } finally {
       setLoading(false);
     }
@@ -127,28 +119,6 @@ const Automobiles = () => {
       );
     }
 
-    if (filters.brand) {
-      filtered = filtered.filter((listing) =>
-        listing.attributes?.brand
-          ?.toLowerCase()
-          .includes(filters.brand.toLowerCase())
-      );
-    }
-
-    if (filters.fuelType && filters.fuelType !== "all") {
-      filtered = filtered.filter(
-        (listing) =>
-          listing.attributes?.fuelType?.toLowerCase() ===
-          filters.fuelType.toLowerCase()
-      );
-    }
-
-    if (filters.year) {
-      filtered = filtered.filter(
-        (listing) => listing.attributes?.year === filters.year
-      );
-    }
-
     filtered.sort((a, b) => {
       if (a.is_featured && !b.is_featured) return -1;
       if (!a.is_featured && b.is_featured) return 1;
@@ -180,9 +150,6 @@ const Automobiles = () => {
       location: "",
       minPrice: "",
       maxPrice: "",
-      brand: "",
-      fuelType: "",
-      year: "",
     });
   };
 
@@ -197,9 +164,9 @@ const Automobiles = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Automobiles</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">All Listings</h1>
             <p className="text-muted-foreground">
-              Browse {filteredListings.length} automobile listings
+              Browse {filteredListings.length} listings
             </p>
           </div>
           <Button onClick={() => setFilterOpen(true)} variant="outline">
@@ -209,7 +176,7 @@ const Automobiles = () => {
         </div>
 
         <FilterDrawer
-          category="automobiles"
+          category="all"
           filters={filters}
           onFilterChange={handleFilterChange}
           onReset={handleReset}
@@ -222,11 +189,11 @@ const Automobiles = () => {
 
         {loading ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">Loading automobiles...</p>
+            <p className="text-muted-foreground">Loading listings...</p>
           </div>
         ) : currentListings.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">No automobiles found</p>
+            <p className="text-muted-foreground">No listings found</p>
           </div>
         ) : (
           <>
@@ -255,7 +222,7 @@ const Automobiles = () => {
                       </Badge>
                     )}
                     <Badge className="absolute top-2 right-2 bg-primary">
-                      Automobiles
+                      {listing.categories.name}
                     </Badge>
                     <FavoriteButton listingId={listing.id} />
                   </div>
@@ -322,4 +289,4 @@ const Automobiles = () => {
   );
 };
 
-export default Automobiles;
+export default AllListings;

@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import Properties from "./pages/Properties";
 import Automobiles from "./pages/Automobiles";
 import Jewellery from "./pages/Jewellery";
+import AllListings from "./pages/AllListings";
 import Experts from "./pages/Experts";
 import News from "./pages/News";
 import Favorites from "./pages/Favorites";
@@ -17,6 +18,8 @@ import MyListings from "./pages/MyListings";
 import Payment from "./pages/Payment";
 import SponsorshipApply from "./pages/SponsorshipApply";
 import AdminSponsorships from "./pages/AdminSponsorships";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +34,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/post-ad" element={<PostAd />} />
+          <Route path="/all-listings" element={<AllListings />} />
           <Route path="/properties" element={<Properties />} />
           <Route path="/automobiles" element={<Automobiles />} />
           <Route path="/jewellery" element={<Jewellery />} />
@@ -40,6 +44,8 @@ const App = () => (
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/sponsorship-apply" element={<SponsorshipApply />} />
+          <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/sponsorships" element={<AdminSponsorships />} />
           <Route path="/listing/:id" element={<ListingDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

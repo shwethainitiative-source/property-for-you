@@ -9,26 +9,12 @@ const Hero = () => {
   const [activeTab, setActiveTab] = useState("properties");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const categories = [
-    { id: "properties", label: "Properties", placeholder: "Search properties by location or type..." },
-    { id: "automobiles", label: "Automobiles", placeholder: "Search cars by brand or model..." },
-    { id: "jewellery", label: "Jewellery", placeholder: "Search jewellery by type or material..." },
-  ];
-
-  const handleCategoryChange = (categoryId: string) => {
-    setActiveTab(categoryId);
-    setSearchQuery("");
-    navigate(`/${categoryId}`);
-  };
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/${activeTab}?search=${encodeURIComponent(searchQuery)}`);
+      navigate(`/properties?search=${encodeURIComponent(searchQuery)}`);
     }
   };
-
-  const currentCategory = categories.find(cat => cat.id === activeTab);
 
   return (
     <section className="relative bg-background py-16 md:py-24">
@@ -44,42 +30,25 @@ const Hero = () => {
             </p>
           </div>
 
-          {/* Category Tabs */}
-          <div className="flex flex-wrap justify-center gap-2 md:gap-3">
-            {categories.map((category) => (
-              <Button
-                key={category.id}
-                onClick={() => handleCategoryChange(category.id)}
-                className={`rounded-full px-6 py-2 transition-all ${
-                  activeTab === category.id
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                    : "bg-background text-primary border-2 border-primary hover:bg-primary/10"
-                }`}
-              >
-                {category.label}
-              </Button>
-            ))}
-          </div>
-
           {/* Search Bar */}
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2 max-w-2xl mx-auto">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <form onSubmit={handleSearch} className="max-w-3xl mx-auto">
+            <div className="relative">
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder={currentCategory?.placeholder || "Search..."}
+                placeholder="Search properties, vehicles, jewellery..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12 bg-background border-2 border-border rounded-full"
+                className="pl-14 pr-32 h-14 bg-background border-2 border-border rounded-full text-base shadow-lg"
               />
+              <Button
+                type="submit"
+                size="lg"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-8"
+              >
+                Search
+              </Button>
             </div>
-            <Button
-              type="submit"
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-8"
-            >
-              Search
-            </Button>
           </form>
         </div>
       </div>
