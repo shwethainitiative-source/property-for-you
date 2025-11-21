@@ -205,7 +205,7 @@ const Jewellery = () => {
             </div>
           </div>
 
-          {/* Right: Search & Listings */}
+          {/* Right: Listings Only */}
           <div className="lg:col-span-3 space-y-6">
             <div className="flex gap-4">
               <Button onClick={() => setFilterOpen(true)} variant="outline">
