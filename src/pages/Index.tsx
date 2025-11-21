@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -11,6 +12,7 @@ import Footer from "@/components/Footer";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("all");
   
   return (
     <div className="min-h-screen bg-background">
@@ -31,8 +33,12 @@ const Index = () => {
           
           <div className="mb-6 flex flex-wrap gap-2">
             <button
-              onClick={() => navigate("/all-listings")}
-              className="px-6 py-2 rounded-full font-medium transition-all bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={() => setActiveTab("all")}
+              className={`px-6 py-2 rounded-full font-medium transition-all ${
+                activeTab === "all"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-background text-primary border-2 border-primary hover:bg-primary hover:text-primary-foreground"
+              }`}
             >
               All
             </button>
