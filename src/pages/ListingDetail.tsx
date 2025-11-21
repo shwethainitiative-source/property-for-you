@@ -5,8 +5,9 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, Phone, Mail, Calendar, ArrowLeft, Star } from "lucide-react";
+import { MapPin, Phone, Mail, Calendar, ArrowLeft, Star, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const ListingDetail = () => {
   const { id } = useParams();
@@ -15,19 +16,51 @@ const ListingDetail = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
-    const stored = localStorage.getItem("listings");
-    if (stored) {
-      const listings = JSON.parse(stored);
-      const found = listings.find((item: any) => item.id === id);
-      if (found) {
-        setListing(found);
-      } else {
+    const fetchListing = async () => {
+      if (!id) {
+        navigate("/");
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("listings")
+        .select(`
+          *,
+          categories(name, slug),
+          listing_images(image_url, display_order)
+        `)
+        .eq("id", id)
+        .eq("status", "active")
+        .single();
+
+      if (error || !data) {
         toast.error("Listing not found");
         navigate("/");
+        return;
       }
-    } else {
-      navigate("/");
-    }
+
+      // Format data for display
+      const formattedListing = {
+        ...data,
+        images: data.listing_images
+          ?.sort((a: any, b: any) => a.display_order - b.display_order)
+          .map((img: any) => img.image_url) || [],
+        category: data.categories?.name,
+        location: `${data.location_city}${data.location_locality ? ', ' + data.location_locality : ''}`,
+        price: `₹${Number(data.price).toLocaleString()}`,
+        sellerName: data.seller_name,
+        phone: data.seller_phone,
+        email: data.seller_email,
+        isFeatured: data.is_featured,
+        createdAt: data.created_at,
+        // Extract attributes
+        ...(data.attributes as any),
+      };
+
+      setListing(formattedListing);
+    };
+
+    fetchListing();
   }, [id, navigate]);
 
   if (!listing) {
@@ -250,6 +283,17 @@ const ListingDetail = () => {
                       >
                         <Phone className="h-4 w-4 mr-2" />
                         Call Seller
+                      </Button>
+                      <Button
+                        className="w-full rounded-full"
+                        variant="outline"
+                        onClick={() => {
+                          const message = encodeURIComponent(`Hi, I'm interested in your listing: ${listing.title}`);
+                          window.open(`https://wa.me/91${listing.phone.replace(/\D/g, '')}?text=${message}`, '_blank');
+                        }}
+                      >
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        WhatsApp
                       </Button>
                       <p className="text-center text-sm text-muted-foreground">
                         {listing.phone}

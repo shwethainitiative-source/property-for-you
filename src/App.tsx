@@ -12,6 +12,7 @@ import Automobiles from "./pages/Automobiles";
 import Jewellery from "./pages/Jewellery";
 import Experts from "./pages/Experts";
 import News from "./pages/News";
+import Favorites from "./pages/Favorites";
 import MyListings from "./pages/MyListings";
 import Payment from "./pages/Payment";
 import SponsorshipApply from "./pages/SponsorshipApply";
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/experts" element={<Experts />} />
           <Route path="/news" element={<News />} />
           <Route path="/my-listings" element={<MyListings />} />
+          <Route path="/favorites" element={<Favorites />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/sponsorship-apply" element={<SponsorshipApply />} />
           <Route path="/admin/sponsorships" element={<AdminSponsorships />} />

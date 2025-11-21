@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { MapPin } from "lucide-react";
+import { FavoriteButton } from "@/components/FavoriteButton";
 import {
   Pagination,
   PaginationContent,
@@ -246,6 +247,7 @@ const Automobiles = () => {
                     <Badge className="absolute top-2 right-2 bg-primary">
                       Automobiles
                     </Badge>
+                    <FavoriteButton listingId={listing.id} />
                   </div>
                   <div className="p-4">
                     <h3 className="font-semibold text-lg mb-2 line-clamp-1">
