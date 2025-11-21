@@ -18,6 +18,7 @@ const Header = () => {
   const navigate = useNavigate();
 
   const menuItems = [
+    { label: "Home", href: "/" },
     { label: "All", href: "/all-listings" },
     { label: "Properties", href: "/properties" },
     { label: "Automobiles", href: "/automobiles" },
