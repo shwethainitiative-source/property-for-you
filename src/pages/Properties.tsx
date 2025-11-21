@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ListingFilters } from "@/components/ListingFilters";
+import { FilterDrawer } from "@/components/FilterDrawer";
+import { Button } from "@/components/ui/button";
 import { ListingSort } from "@/components/ListingSort";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin } from "lucide-react";
+import { MapPin, Filter } from "lucide-react";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import {
   Pagination,
@@ -39,6 +40,7 @@ const Properties = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState("newest");
+  const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState({
     search: "",
     location: "",
@@ -183,19 +185,27 @@ const Properties = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Properties</h1>
-          <p className="text-muted-foreground">
-            Browse {filteredListings.length} property listings
-          </p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Properties</h1>
+            <p className="text-muted-foreground">
+              Browse {filteredListings.length} property listings
+            </p>
+          </div>
+          <Button onClick={() => setFilterOpen(true)} variant="outline">
+            <Filter className="h-4 w-4 mr-2" />
+            Filters
+          </Button>
         </div>
 
-        <ListingFilters
+        <FilterDrawer
           category="properties"
           filters={filters}
           onFilterChange={handleFilterChange}
           onReset={handleReset}
           onSearch={applyFiltersAndSort}
+          open={filterOpen}
+          onOpenChange={setFilterOpen}
         />
 
         <ListingSort value={sortBy} onChange={setSortBy} />
