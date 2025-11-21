@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ListingSort } from "@/components/ListingSort";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { MapPin, Filter } from "lucide-react";
 import { FavoriteButton } from "@/components/FavoriteButton";
@@ -41,6 +42,7 @@ const Automobiles = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState("newest");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
     search: "",
     location: "",
@@ -195,127 +197,137 @@ const Automobiles = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Automobiles</h1>
-            <p className="text-muted-foreground">
-              Browse {filteredListings.length} automobile listings
-            </p>
-          </div>
-          <Button onClick={() => setFilterOpen(true)} variant="outline">
-            <Filter className="h-4 w-4 mr-2" />
-            Filters
-          </Button>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-2">Automobiles</h1>
+          <p className="text-muted-foreground">Discover quality vehicles</p>
         </div>
 
-        <FilterDrawer
-          category="automobiles"
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          onReset={handleReset}
-          onSearch={applyFiltersAndSort}
-          open={filterOpen}
-          onOpenChange={setFilterOpen}
-        />
-
-        <ListingSort value={sortBy} onChange={setSortBy} />
-
-        {loading ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">Loading automobiles...</p>
+        <div className="grid lg:grid-cols-4 gap-6 mb-8">
+          {/* Left: Sponsored Ad */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-4 bg-muted/30 rounded-lg p-4 border">
+              <h3 className="text-sm font-semibold mb-3">Sponsored</h3>
+              <div className="aspect-square bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center">
+                <span className="text-xs text-muted-foreground">Ad Space</span>
+              </div>
+            </div>
           </div>
-        ) : currentListings.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No automobiles found</p>
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {currentListings.map((listing) => (
-                <Card
-                  key={listing.id}
-                  className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => navigate(`/listing/${listing.id}`)}
-                >
-                  <div className="aspect-video bg-muted relative">
-                    {listing.listing_images?.[0] ? (
-                      <img
-                        src={listing.listing_images[0].image_url}
-                        alt={listing.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                        No image
-                      </div>
-                    )}
-                    {listing.is_featured && (
-                      <Badge className="absolute top-2 left-2 bg-accent text-accent-foreground">
-                        Featured
-                      </Badge>
-                    )}
-                    <Badge className="absolute top-2 right-2 bg-primary">
-                      Automobiles
-                    </Badge>
-                    <FavoriteButton listingId={listing.id} />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-lg mb-2 line-clamp-1">
-                      {listing.title}
-                    </h3>
-                    <p className="text-xl font-bold text-primary mb-2">
-                      ₹{listing.price.toLocaleString()}
-                    </p>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      <span className="line-clamp-1">
-                        {listing.location_locality
-                          ? `${listing.location_locality}, ${listing.location_city}`
-                          : listing.location_city}
-                      </span>
-                    </div>
-                  </div>
-                </Card>
-              ))}
+
+          {/* Right: Search & Listings */}
+          <div className="lg:col-span-3 space-y-6">
+            <div className="flex gap-4">
+              <Button onClick={() => setFilterOpen(true)} variant="outline">
+                <Filter className="h-4 w-4 mr-2" />
+                Filters
+              </Button>
+              <div className="flex-1">
+                <Input
+                  placeholder="Search automobiles..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full"
+                />
+              </div>
             </div>
 
-            {totalPages > 1 && (
-              <Pagination className="mt-8">
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      className={
-                        currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"
-                      }
-                    />
-                  </PaginationItem>
-                  {[...Array(totalPages)].map((_, i) => (
-                    <PaginationItem key={i + 1}>
-                      <PaginationLink
-                        onClick={() => setCurrentPage(i + 1)}
-                        isActive={currentPage === i + 1}
-                        className="cursor-pointer"
-                      >
-                        {i + 1}
-                      </PaginationLink>
-                    </PaginationItem>
+            <FilterDrawer
+              category="automobiles"
+              filters={filters}
+              onFilterChange={handleFilterChange}
+              onReset={handleReset}
+              onSearch={applyFiltersAndSort}
+              open={filterOpen}
+              onOpenChange={setFilterOpen}
+            />
+
+            <ListingSort value={sortBy} onChange={setSortBy} />
+
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <p className="text-muted-foreground">Loading automobiles...</p>
+              </div>
+            ) : currentListings.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No automobiles found matching your criteria</p>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {currentListings.map((listing) => (
+                    <Card
+                      key={listing.id}
+                      className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => navigate(`/listing/${listing.id}`)}
+                    >
+                      <div className="aspect-video bg-muted relative">
+                        {listing.listing_images?.[0] ? (
+                          <img
+                            src={listing.listing_images[0].image_url}
+                            alt={listing.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                            No image
+                          </div>
+                        )}
+                        <FavoriteButton listingId={listing.id} />
+                      </div>
+                      <div className="p-4">
+                        <h3 className="font-semibold text-lg mb-2 line-clamp-1">{listing.title}</h3>
+                        <p className="text-xl font-bold text-primary mb-2">₹{listing.price.toLocaleString()}</p>
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          <span className="line-clamp-1">
+                            {listing.location_locality
+                              ? `${listing.location_locality}, ${listing.location_city}`
+                              : listing.location_city}
+                          </span>
+                        </div>
+                      </div>
+                    </Card>
                   ))}
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                      className={
-                        currentPage === totalPages
-                          ? "pointer-events-none opacity-50"
-                          : "cursor-pointer"
-                      }
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+                </div>
+
+                {totalPages > 1 && (
+                  <Pagination className="mt-8">
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                          className={
+                            currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"
+                          }
+                        />
+                      </PaginationItem>
+                      {[...Array(totalPages)].map((_, i) => (
+                        <PaginationItem key={i + 1}>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(i + 1)}
+                            isActive={currentPage === i + 1}
+                            className="cursor-pointer"
+                          >
+                            {i + 1}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ))}
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                          className={
+                            currentPage === totalPages
+                              ? "pointer-events-none opacity-50"
+                              : "cursor-pointer"
+                          }
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                )}
+              </>
             )}
-          </>
-        )}
+          </div>
+        </div>
       </main>
       <Footer />
     </div>
