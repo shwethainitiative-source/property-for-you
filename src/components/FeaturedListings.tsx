@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { FavoriteButton } from "@/components/FavoriteButton";
 
 interface Listing {
   id: string;
@@ -137,9 +138,10 @@ const FeaturedListings = () => {
                           No Image
                         </div>
                       )}
-                      <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground">
+                      <Badge className="absolute top-2 left-2 bg-accent text-accent-foreground">
                         Featured
                       </Badge>
+                      <FavoriteButton listingId={listing.id} />
                     </div>
                     <CardContent className="p-4 space-y-2">
                       <h3 className="font-semibold text-foreground line-clamp-1">

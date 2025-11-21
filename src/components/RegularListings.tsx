@@ -4,6 +4,7 @@ import { MapPin, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import { FavoriteButton } from "@/components/FavoriteButton";
 
 interface Listing {
   id: string;
@@ -124,6 +125,7 @@ const RegularListings = () => {
                         No Image
                       </div>
                     )}
+                    <FavoriteButton listingId={listing.id} />
                   </div>
                   <CardContent className="p-4 space-y-2">
                     <h3 className="font-semibold text-foreground line-clamp-1">

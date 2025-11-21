@@ -13,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Upload, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,7 +25,7 @@ const PostAd = () => {
   const [categoryId, setCategoryId] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [isFeatured, setIsFeatured] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -58,7 +57,7 @@ const PostAd = () => {
       const parsed = JSON.parse(savedFormData);
       setFormData(parsed.formData);
       setCategory(parsed.category);
-      setAgreedToTerms(parsed.agreedToTerms);
+      setIsFeatured(parsed.isFeatured || false);
       // Clear the saved data
       sessionStorage.removeItem("pendingAdFormData");
       toast.info("Your form data has been restored. Please continue posting your ad.");
@@ -125,7 +124,7 @@ const PostAd = () => {
     return uploadedUrls;
   };
 
-  const handleSubmit = async (isFeatured: boolean) => {
+  const handleSubmit = async () => {
     // Validate required fields first
     if (!formData.title.trim()) {
       toast.error("Please enter a title");
@@ -152,35 +151,18 @@ const PostAd = () => {
       return;
     }
 
-    if (!agreedToTerms) {
-      toast.error("Please agree to the terms and conditions");
-      return;
-    }
-
     // Check authentication AFTER validation
     if (!user) {
       // Save form data to sessionStorage
       const dataToSave = {
         formData,
         category,
-        agreedToTerms,
         isFeatured
       };
       sessionStorage.setItem("pendingAdFormData", JSON.stringify(dataToSave));
-      sessionStorage.setItem("pendingAdType", isFeatured ? "paid" : "free");
       
       toast.error("Please login to post an ad");
       navigate("/auth?redirect=/post-ad");
-      return;
-    }
-
-    if (!formData.price || !formData.description || !formData.city) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
-
-    if (images.length === 0) {
-      toast.error("Please upload at least one image");
       return;
     }
 
@@ -735,46 +717,36 @@ const PostAd = () => {
           </div>
         </div>
 
-        {/* Terms & Conditions */}
+        {/* Featured Toggle */}
         <div className="bg-card rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex items-start space-x-2">
-            <Checkbox
-              id="terms"
-              checked={agreedToTerms}
-              onCheckedChange={(checked) =>
-                setAgreedToTerms(checked as boolean)
-              }
-            />
-            <label
-              htmlFor="terms"
-              className="text-sm text-muted-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              I agree to the Terms & Conditions and confirm that all information
-              provided is accurate.
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h3 className="text-lg font-semibold">Make this a Featured Listing</h3>
+              <p className="text-sm text-muted-foreground">
+                Featured listings get more visibility and appear at the top
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isFeatured}
+                onChange={(e) => setIsFeatured(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
             </label>
           </div>
         </div>
 
-        {/* Submit Buttons */}
-        <div className="flex gap-4">
-          <Button
-            onClick={() => handleSubmit(true)}
-            disabled={isSubmitting}
-            className="flex-1 bg-primary hover:bg-primary/90"
-            size="lg"
-          >
-            {isSubmitting ? "Processing..." : "Post Your Ad (Paid Ad)"}
-          </Button>
-          <Button
-            onClick={() => handleSubmit(false)}
-            disabled={isSubmitting}
-            variant="outline"
-            className="flex-1"
-            size="lg"
-          >
-            {isSubmitting ? "Processing..." : "Publish Free Ad"}
-          </Button>
-        </div>
+        {/* Submit Button */}
+        <Button
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className="w-full bg-primary hover:bg-primary/90"
+          size="lg"
+        >
+          {isSubmitting ? "Processing..." : "Submit Listing"}
+        </Button>
       </main>
       <Footer />
     </div>

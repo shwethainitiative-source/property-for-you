@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, User, Plus, LogOut } from "lucide-react";
+import { Menu, X, User, Plus, LogOut, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -23,7 +23,6 @@ const Header = () => {
     { label: "Jewellery", href: "/jewellery" },
     { label: "Experts", href: "/experts" },
     { label: "News", href: "/news" },
-    { label: "Become a Sponsor", href: "/sponsorship-apply" },
   ];
 
   return (
@@ -65,6 +64,14 @@ const Header = () => {
                     <DropdownMenuItem onClick={() => navigate("/my-listings")}>
                       My Listings
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/favorites")}>
+                      <Heart className="h-4 w-4 mr-2" />
+                      Favorites
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/sponsorship-apply")}>
+                      Become a Sponsor
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => signOut()}>
                       <LogOut className="h-4 w-4 mr-2" />
                       Logout
@@ -131,6 +138,29 @@ const Header = () => {
                     }}
                   >
                     My Listings
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start text-foreground/80"
+                    onClick={() => {
+                      navigate("/favorites");
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    <Heart className="h-4 w-4 mr-2" />
+                    Favorites
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start text-foreground/80"
+                    onClick={() => {
+                      navigate("/sponsorship-apply");
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    Become a Sponsor
                   </Button>
                   <Button
                     variant="ghost"
