@@ -300,7 +300,7 @@ const ListingDetail = () => {
                         onClick={() => {
                           const message = encodeURIComponent(`Hi, I'm interested in your listing: ${listing.title}`);
                           const phoneNumber = listing.phone.replace(/\D/g, '');
-                          const waLink = `https://wa.me/91${phoneNumber}?text=${message}`;
+                          const waLink = `https://wa.me/${phoneNumber}?text=${message}`;
                           window.open(waLink, '_blank');
                         }}
                       >

@@ -21,6 +21,9 @@ const Experts = () => {
   const handleCallClick = () => {
     if (window.innerWidth < 768) {
       window.location.href = "tel:+917899828127";
+    } else {
+      // On desktop, just display - number is already shown in the button
+      return;
     }
   };
 
@@ -128,7 +131,7 @@ const Experts = () => {
                   onClick={handleCallClick}
                   className="bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-full px-8 py-6 text-lg font-semibold"
                 >
-                  {window.innerWidth < 768 ? "Call Now" : "+91 7899828127"}
+                  {typeof window !== 'undefined' && window.innerWidth < 768 ? "Call Now" : "+91 7899828127"}
                 </Button>
               </CardContent>
             </Card>
@@ -145,7 +148,7 @@ const Experts = () => {
                   onClick={handleWhatsAppClick}
                   className="bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-full px-8 py-6 text-lg font-semibold"
                 >
-                  {window.innerWidth < 768 ? "Chat Now" : "WhatsApp"}
+                  {typeof window !== 'undefined' && window.innerWidth < 768 ? "Chat Now" : "WhatsApp"}
                 </Button>
               </CardContent>
             </Card>
