@@ -28,7 +28,7 @@ const Experts = () => {
 
   const serviceBoxes = [
     {
-      image: "https://i.pinimg.com/1200x/fd/5e/8a/fd5e8a33cb42d9b7377e85e2f92f0fb6.jpg",
+      image: "https://i.pinimg.com/736x/06/e7/30/06e73067adc157cb549e79145151489c.jpg",
       title: "Property Services",
       description: "Find your dream property",
     },
@@ -130,7 +130,7 @@ const Experts = () => {
                   onClick={handleCallClick}
                   className="bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-full px-8 py-6 text-lg font-semibold"
                 >
-                  {typeof window !== 'undefined' && window.innerWidth < 768 ? "Call Now" : "+91 7899828127"}
+                  {typeof window !== "undefined" && window.innerWidth < 768 ? "Call Now" : "+91 7899828127"}
                 </Button>
               </CardContent>
             </Card>
@@ -147,7 +147,7 @@ const Experts = () => {
                   onClick={handleWhatsAppClick}
                   className="bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-full px-8 py-6 text-lg font-semibold"
                 >
-                  {typeof window !== 'undefined' && window.innerWidth < 768 ? "Chat Now" : "WhatsApp"}
+                  {typeof window !== "undefined" && window.innerWidth < 768 ? "Chat Now" : "WhatsApp"}
                 </Button>
               </CardContent>
             </Card>
