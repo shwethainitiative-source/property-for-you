@@ -38,7 +38,7 @@ const Experts = () => {
       description: "Buy or sell vehicles",
     },
     {
-      image: "https://i.pinimg.com/736x/f8/ee/6b/f8ee6bd6aa6a40b05c41a87efc4e30fd.jpg",
+      image: "https://i.pinimg.com/736x/81/56/f9/8156f91d2e791a4544366777d8335628.jpg",
       title: "Jewellery Services",
       description: "Explore premium jewellery",
     },
