@@ -25,27 +25,32 @@ const AdminLogin = () => {
         password,
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        // Better error message for invalid credentials
+        if (authError.message.includes("Invalid login credentials")) {
+          throw new Error("Invalid email or password. Please check your credentials.");
+        }
+        throw authError;
+      }
 
       if (!authData.user) {
         throw new Error("No user data returned");
       }
 
-      // Check if user has admin role
-      const { data: roleData, error: roleError } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", authData.user.id)
-        .eq("role", "admin")
-        .maybeSingle();
+      // Check if user has admin role using the has_role function
+      const { data: hasAdminRole, error: roleError } = await supabase
+        .rpc("has_role", {
+          _user_id: authData.user.id,
+          _role: "admin"
+        });
 
       if (roleError) throw roleError;
 
-      if (!roleData) {
+      if (!hasAdminRole) {
         await supabase.auth.signOut();
         toast({
           title: "Access Denied",
-          description: "You are not authorized to access the admin panel.",
+          description: "You are not authorized to access the admin panel. Only admin users can access this area.",
           variant: "destructive",
         });
         return;
@@ -60,7 +65,7 @@ const AdminLogin = () => {
     } catch (error: any) {
       toast({
         title: "Login Failed",
-        description: error.message || "Invalid credentials",
+        description: error.message || "Invalid credentials. Please try again.",
         variant: "destructive",
       });
     } finally {

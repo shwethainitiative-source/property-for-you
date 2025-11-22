@@ -140,7 +140,17 @@ const Auth = () => {
         },
       });
 
-      if (signupError) throw signupError;
+      if (signupError) {
+        // Check for duplicate email error
+        if (signupError.message.includes("already registered") || signupError.message.includes("User already registered")) {
+          toast.error("Account already exists. Please log in instead.");
+          // Switch to login tab
+          setShowForgotPassword(false);
+          setSignupStep("form");
+          return;
+        }
+        throw signupError;
+      }
 
       toast.success("Account created successfully! You can now login.");
       
