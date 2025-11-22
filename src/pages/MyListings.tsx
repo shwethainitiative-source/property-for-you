@@ -204,7 +204,7 @@ const MyListings = () => {
                         className="flex-1"
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/listing/${listing.id}?edit=true`);
+                          navigate(`/edit-listing/${listing.id}`);
                         }}
                       >
                         <Edit className="h-4 w-4 mr-2" />

@@ -272,6 +272,11 @@ const ListingDetail = () => {
                     <div className="space-y-1">
                       <p className="text-sm text-muted-foreground">Name</p>
                       <p className="font-semibold">{listing.sellerName}</p>
+                      {listing.phone && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {listing.phone}
+                        </p>
+                      )}
                     </div>
                   )}
 
@@ -279,7 +284,12 @@ const ListingDetail = () => {
                     <div className="space-y-2">
                       <Button
                         className="w-full rounded-full"
-                        onClick={() => window.open(`tel:${listing.phone}`)}
+                        onClick={() => {
+                          // On mobile, open dialer; on desktop, just trigger (will show number above)
+                          if (window.innerWidth < 768) {
+                            window.open(`tel:${listing.phone}`);
+                          }
+                        }}
                       >
                         <Phone className="h-4 w-4 mr-2" />
                         Call Seller
@@ -289,15 +299,14 @@ const ListingDetail = () => {
                         variant="outline"
                         onClick={() => {
                           const message = encodeURIComponent(`Hi, I'm interested in your listing: ${listing.title}`);
-                          window.open(`https://wa.me/91${listing.phone.replace(/\D/g, '')}?text=${message}`, '_blank');
+                          const phoneNumber = listing.phone.replace(/\D/g, '');
+                          const waLink = `https://wa.me/91${phoneNumber}?text=${message}`;
+                          window.open(waLink, '_blank');
                         }}
                       >
                         <MessageCircle className="h-4 w-4 mr-2" />
                         WhatsApp
                       </Button>
-                      <p className="text-center text-sm text-muted-foreground">
-                        {listing.phone}
-                      </p>
                     </div>
                   )}
 
@@ -305,7 +314,11 @@ const ListingDetail = () => {
                     <Button
                       variant="outline"
                       className="w-full rounded-full"
-                      onClick={() => window.open(`mailto:${listing.email}`)}
+                      onClick={() => {
+                        const subject = encodeURIComponent(`Inquiry about: ${listing.title}`);
+                        const body = encodeURIComponent(`Hi,\n\nI am interested in your listing: ${listing.title}\n\nPlease provide more details.\n\nThank you.`);
+                        window.open(`mailto:${listing.email}?subject=${subject}&body=${body}`);
+                      }}
                     >
                       <Mail className="h-4 w-4 mr-2" />
                       Email Seller
