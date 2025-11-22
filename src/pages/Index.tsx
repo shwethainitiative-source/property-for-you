@@ -46,7 +46,7 @@ const Index = () => {
           location_city,
           location_locality,
           category_id,
-          categories (name, slug),
+          categories!inner (name, slug)
           listing_images (image_url)
         `)
         .eq("status", "active")
@@ -61,7 +61,13 @@ const Index = () => {
       const { data, error } = await query;
 
       if (error) throw error;
-      setListings(data as any || []);
+      
+      // Filter out any listings without a valid category
+      const filteredData = (data as any || []).filter((listing: any) => 
+        listing.categories && listing.categories.name && listing.categories.slug
+      );
+      
+      setListings(filteredData);
     } catch (error) {
       console.error("Error loading listings:", error);
     } finally {
