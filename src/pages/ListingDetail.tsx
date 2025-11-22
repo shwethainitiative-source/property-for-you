@@ -285,14 +285,13 @@ const ListingDetail = () => {
                       <Button
                         className="w-full rounded-full"
                         onClick={() => {
-                          // On mobile, open dialer; on desktop, just trigger (will show number above)
                           if (window.innerWidth < 768) {
-                            window.open(`tel:${listing.phone}`);
+                            window.location.href = `tel:${listing.phone}`;
                           }
                         }}
                       >
                         <Phone className="h-4 w-4 mr-2" />
-                        Call Seller
+                        {window.innerWidth < 768 ? "Call Seller" : listing.phone}
                       </Button>
                       <Button
                         className="w-full rounded-full"
