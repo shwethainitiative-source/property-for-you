@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import PostAd from "./pages/PostAd";
 import ListingDetail from "./pages/ListingDetail";
+import EditListing from "./pages/EditListing";
 import Auth from "./pages/Auth";
 import Properties from "./pages/Properties";
 import Automobiles from "./pages/Automobiles";
@@ -47,6 +48,7 @@ const App = () => (
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/sponsorships" element={<AdminSponsorships />} />
           <Route path="/listing/:id" element={<ListingDetail />} />
+          <Route path="/edit-listing/:id" element={<EditListing />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

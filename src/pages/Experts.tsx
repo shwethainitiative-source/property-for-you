@@ -19,12 +19,9 @@ const Experts = () => {
   };
 
   const handleCallClick = () => {
-    window.location.href = "tel:+917899828127";
-  };
-
-  const handleChatClick = () => {
-    // Navigate to inbox/message form - update this path as needed
-    window.location.href = "/contact";
+    if (window.innerWidth < 768) {
+      window.location.href = "tel:+917899828127";
+    }
   };
 
   const serviceBoxes = [
@@ -50,7 +47,7 @@ const Experts = () => {
       <Header />
       
       {/* Hero Section with Curtain Animation */}
-      <section className="relative h-[60vh] bg-[#001a4d] overflow-hidden flex items-center justify-center">
+      <section className="relative h-screen bg-[#001a4d] overflow-hidden flex items-center justify-center">
         {/* Curtain Left Panel */}
         <div 
           className={`absolute top-0 left-0 w-1/2 h-full bg-[#000d26] transition-transform duration-1000 ease-in-out z-10 ${
@@ -117,30 +114,61 @@ const Experts = () => {
         </div>
       </section>
 
-      {/* Floating Action Buttons */}
-      <div className="fixed bottom-8 right-8 flex flex-col gap-4 z-50">
-        {/* Call Button */}
-        <Button
-          onClick={handleCallClick}
-          size="lg"
-          className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full shadow-lg hover:shadow-xl transition-all w-14 h-14 md:w-auto md:h-auto md:px-6 md:py-3"
-          title="Call Center"
-        >
-          <Phone className="h-5 w-5 md:mr-2" />
-          <span className="hidden md:inline">Call Center</span>
-        </Button>
+      {/* Get in Touch Section */}
+      <section className="bg-background py-16 px-4">
+        <div className="container mx-auto max-w-5xl">
+          {/* Section Header */}
+          <div className="mb-8">
+            <div className="inline-block bg-[#001a4d] text-white px-4 py-1 rounded-md text-sm font-semibold mb-4">
+              CONTACTS
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+              Get in Touch for Expert Consulting
+            </h2>
+          </div>
 
-        {/* Chat Button */}
-        <Button
-          onClick={handleChatClick}
-          size="lg"
-          className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full shadow-lg hover:shadow-xl transition-all w-14 h-14 md:w-auto md:h-auto md:px-6 md:py-3"
-          title="Chat 24/7"
-        >
-          <MessageCircle className="h-5 w-5 md:mr-2" />
-          <span className="hidden md:inline">Chat 24/7</span>
-        </Button>
-      </div>
+          {/* Service Cards */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Call Center Card */}
+            <Card className="hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-8 text-center space-y-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-[#001a4d]/10 rounded-full mb-2">
+                  <Phone className="h-8 w-8 text-[#001a4d]" />
+                </div>
+                <h3 className="text-2xl font-bold text-foreground">Call Center</h3>
+                <p className="text-muted-foreground">
+                  Connect with our support team instantly.
+                </p>
+                <Button
+                  onClick={handleCallClick}
+                  className="bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-full px-8 py-6 text-lg font-semibold"
+                >
+                  {window.innerWidth < 768 ? 'Call Now' : '+91 7899828127'}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Chat 24/7 Card */}
+            <Card className="hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-8 text-center space-y-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-[#001a4d]/10 rounded-full mb-2">
+                  <MessageCircle className="h-8 w-8 text-[#001a4d]" />
+                </div>
+                <h3 className="text-2xl font-bold text-foreground">Chat 24/7</h3>
+                <p className="text-muted-foreground">
+                  Send us a message anytime.
+                </p>
+                <Button
+                  onClick={handleWhatsAppClick}
+                  className="bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-full px-8 py-6 text-lg font-semibold"
+                >
+                  {window.innerWidth < 768 ? 'Chat Now' : 'WhatsApp'}
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
 
       <Footer />
     </div>
