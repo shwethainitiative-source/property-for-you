@@ -15,16 +15,15 @@ const Experts = () => {
   }, []);
 
   const handleWhatsAppClick = () => {
-    window.open("https://wa.me/917899828127", "_blank");
+    const message = encodeURIComponent("Hi, I'd like to connect with you");
+    window.open(`https://wa.me/917899828127?text=${message}`, "_blank");
   };
 
   const handleCallClick = () => {
     if (window.innerWidth < 768) {
       window.location.href = "tel:+917899828127";
-    } else {
-      // On desktop, just display - number is already shown in the button
-      return;
     }
+    // On desktop, number is displayed in button, no action needed
   };
 
   const serviceBoxes = [
