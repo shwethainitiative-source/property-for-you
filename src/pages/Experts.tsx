@@ -26,7 +26,7 @@ const Experts = () => {
 
   const serviceBoxes = [
     {
-      image: "https://i.pinimg.com/736x/15/ee/45/15ee451d23da0b12e8d6d77cd6b0eed4.jpg",
+      image: "https://i.pinimg.com/1200x/fd/5e/8a/fd5e8a33cb42d9b7377e85e2f92f0fb6.jpg",
       title: "Property Services",
       description: "Find your dream property",
     },
