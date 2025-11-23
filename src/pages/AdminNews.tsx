@@ -1,41 +1,48 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { LogOut, Home, Plus, Edit, Trash2 } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Pencil, Trash2, Plus } from "lucide-react";
+import { format } from "date-fns";
 
 interface NewsArticle {
   id: string;
   title: string;
+  summary: string;
   content: string;
   image_url?: string;
+  published: boolean;
   created_at: string;
+  updated_at: string;
 }
 
 const AdminNews = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, loading: authLoading, signOut } = useAuth();
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
+    summary: "",
     content: "",
     image_url: "",
+    published: false,
   });
 
   useEffect(() => {
-    if (!authLoading) {
-      checkAdminAccess();
-    }
-  }, [user, authLoading]);
+    checkAdminAccess();
+  }, []);
 
   useEffect(() => {
     if (isAdmin) {
@@ -44,178 +51,301 @@ const AdminNews = () => {
   }, [isAdmin]);
 
   const checkAdminAccess = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
     if (!user) {
       navigate("/admin");
       return;
     }
 
-    try {
-      const { data: hasAdminRole, error } = await supabase.rpc("has_role", {
-        _user_id: user.id,
-        _role: "admin"
+    const { data: hasAdminRole } = await supabase.rpc("has_role", {
+      _user_id: user.id,
+      _role: "admin",
+    });
+
+    if (!hasAdminRole) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to access this page.",
+        variant: "destructive",
       });
-
-      if (error) throw error;
-
-      if (!hasAdminRole) {
-        toast({
-          title: "Access Denied",
-          description: "You are not authorized to access this page.",
-          variant: "destructive",
-        });
-        navigate("/");
-        return;
-      }
-
-      setIsAdmin(true);
-    } catch (error) {
-      console.error("Error checking admin access:", error);
       navigate("/");
+      return;
     }
+
+    setIsAdmin(true);
   };
 
   const fetchArticles = async () => {
-    try {
-      // Note: You'll need to create a news_articles table in your database
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("news_articles")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
       toast({
-        title: "Coming Soon",
-        description: "News management feature is under development. Create a 'news_articles' table first.",
+        title: "Error",
+        description: "Failed to fetch articles",
+        variant: "destructive",
       });
-      setArticles([]);
-    } catch (error) {
-      console.error("Error fetching articles:", error);
-    } finally {
-      setLoading(false);
+    } else {
+      setArticles(data || []);
     }
+    setLoading(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    toast({
-      title: "Coming Soon",
-      description: "News creation feature requires a 'news_articles' table in your database.",
-    });
+
+    if (editingId) {
+      const { error } = await supabase
+        .from("news_articles")
+        .update(formData)
+        .eq("id", editingId);
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to update article",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Article updated successfully",
+        });
+        setShowForm(false);
+        setEditingId(null);
+        setFormData({ title: "", summary: "", content: "", image_url: "", published: false });
+        fetchArticles();
+      }
+    } else {
+      const { error } = await supabase.from("news_articles").insert([formData]);
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to create article",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Article created successfully",
+        });
+        setShowForm(false);
+        setFormData({ title: "", summary: "", content: "", image_url: "", published: false });
+        fetchArticles();
+      }
+    }
   };
 
-  const handleLogout = async () => {
-    await signOut();
-    navigate("/admin");
+  const handleEdit = (article: NewsArticle) => {
+    setEditingId(article.id);
+    setFormData({
+      title: article.title,
+      summary: article.summary,
+      content: article.content,
+      image_url: article.image_url || "",
+      published: article.published,
+    });
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("news_articles").delete().eq("id", id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete article",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Article deleted successfully",
+      });
+      fetchArticles();
+    }
+  };
+
+  const handleTogglePublish = async (id: string, currentStatus: boolean) => {
+    const { error } = await supabase
+      .from("news_articles")
+      .update({ published: !currentStatus })
+      .eq("id", id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update status",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: `Article ${!currentStatus ? "published" : "unpublished"} successfully`,
+      });
+      fetchArticles();
+    }
   };
 
   if (!isAdmin || loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
+      <AdminLayout>
+        <div className="flex items-center justify-center h-full">
+          <p>Loading...</p>
+        </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="border-b">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-foreground">News Management</h1>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate("/admin/dashboard")}>
-              <Home className="h-4 w-4 mr-2" />
-              Dashboard
-            </Button>
-            <Button variant="outline" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
+    <AdminLayout>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">News Management</h1>
+            <p className="text-muted-foreground">Create and manage news articles</p>
           </div>
-        </div>
-      </div>
-
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-6">
-          <Button onClick={() => setShowForm(!showForm)}>
+          <Button onClick={() => {
+            setShowForm(!showForm);
+            if (showForm) {
+              setEditingId(null);
+              setFormData({ title: "", summary: "", content: "", image_url: "", published: false });
+            }
+          }}>
             <Plus className="h-4 w-4 mr-2" />
-            {showForm ? "Cancel" : "Add News Article"}
+            {showForm ? "Cancel" : "Add Article"}
           </Button>
         </div>
 
+        {/* Add/Edit Form */}
         {showForm && (
-          <Card className="mb-6">
+          <Card>
             <CardHeader>
-              <CardTitle>Create News Article</CardTitle>
+              <CardTitle>{editingId ? "Edit Article" : "Add News Article"}</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium">Title</label>
+                  <Label htmlFor="title">Title *</Label>
                   <Input
+                    id="title"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     required
                   />
                 </div>
+
                 <div>
-                  <label className="text-sm font-medium">Content</label>
+                  <Label htmlFor="summary">Summary *</Label>
                   <Textarea
-                    value={formData.content}
-                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    rows={6}
+                    id="summary"
+                    value={formData.summary}
+                    onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
+                    rows={3}
+                    placeholder="Brief summary for listing page"
                     required
                   />
                 </div>
+
                 <div>
-                  <label className="text-sm font-medium">Image URL (optional)</label>
-                  <Input
-                    value={formData.image_url}
-                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                  <Label htmlFor="content">Full Content *</Label>
+                  <Textarea
+                    id="content"
+                    value={formData.content}
+                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                    rows={10}
+                    required
                   />
                 </div>
-                <Button type="submit">Publish Article</Button>
+
+                <div>
+                  <Label htmlFor="image_url">Image URL (Optional)</Label>
+                  <Input
+                    id="image_url"
+                    type="url"
+                    value={formData.image_url}
+                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="published"
+                    checked={formData.published}
+                    onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
+                    className="rounded"
+                  />
+                  <Label htmlFor="published">Publish immediately</Label>
+                </div>
+
+                <Button type="submit">{editingId ? "Update Article" : "Create Article"}</Button>
               </form>
             </CardContent>
           </Card>
         )}
 
+        {/* Articles Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Published Articles</CardTitle>
-            <CardDescription>Manage your news articles</CardDescription>
+            <CardTitle>All Articles</CardTitle>
           </CardHeader>
           <CardContent>
-            {articles.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
-                No articles yet. Create a 'news_articles' table in your database to get started.
-              </p>
-            ) : (
-              <div className="space-y-4">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {articles.map((article) => (
-                  <div
-                    key={article.id}
-                    className="flex items-center justify-between p-4 border rounded-lg"
-                  >
-                    <div className="flex-1">
-                      <h3 className="font-semibold mb-1">{article.title}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {article.content}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(article.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="destructive">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
+                  <TableRow key={article.id}>
+                    <TableCell className="font-medium">{article.title}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={article.published ? "default" : "secondary"}
+                        className="cursor-pointer"
+                        onClick={() => handleTogglePublish(article.id, article.published)}
+                      >
+                        {article.published ? "Published" : "Draft"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{format(new Date(article.created_at), "MMM dd, yyyy")}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(article)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDelete(article.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </div>
-            )}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
-      </main>
-    </div>
+      </div>
+    </AdminLayout>
   );
 };
 
