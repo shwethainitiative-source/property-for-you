@@ -204,12 +204,7 @@ const Automobiles = () => {
         </div>
 
         <div className="grid lg:grid-cols-4 gap-6 mb-8">
-          {/* Left: Sponsored Ad */}
-          <div className="lg:col-span-1">
-            <SponsoredAdsSidebar />
-          </div>
-
-          {/* Right: Listings Only */}
+          {/* Left: Listings */}
           <div className="lg:col-span-3 space-y-6">
             <div className="flex gap-4">
               <Button onClick={() => setFilterOpen(true)} variant="outline">
@@ -322,6 +317,13 @@ const Automobiles = () => {
                 )}
               </>
             )}
+          </div>
+
+          {/* Right: Sponsored Ads */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-4">
+              <SponsoredAdsSidebar />
+            </div>
           </div>
         </div>
       </main>

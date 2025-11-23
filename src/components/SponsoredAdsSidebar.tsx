@@ -1,6 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ArrowRight } from "lucide-react";
+import { Carousel, CarouselContent, CarouselItem, CarouselApi } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 interface Sponsorship {
   id: string;
@@ -11,10 +15,28 @@ interface Sponsorship {
 
 const SponsoredAdsSidebar = () => {
   const [sponsorships, setSponsorships] = useState<Sponsorship[]>([]);
+  const [api1, setApi1] = useState<CarouselApi>();
+  const [api2, setApi2] = useState<CarouselApi>();
+  const [current1, setCurrent1] = useState(0);
+  const [current2, setCurrent2] = useState(0);
+  const autoplay1Ref = useRef(Autoplay({ delay: 3000, stopOnInteraction: false }));
+  const autoplay2Ref = useRef(Autoplay({ delay: 3000, stopOnInteraction: false }));
 
   useEffect(() => {
     fetchActiveSponsorships();
   }, []);
+
+  useEffect(() => {
+    if (!api1) return;
+    setCurrent1(api1.selectedScrollSnap());
+    api1.on("select", () => setCurrent1(api1.selectedScrollSnap()));
+  }, [api1]);
+
+  useEffect(() => {
+    if (!api2) return;
+    setCurrent2(api2.selectedScrollSnap());
+    api2.on("select", () => setCurrent2(api2.selectedScrollSnap()));
+  }, [api2]);
 
   const fetchActiveSponsorships = async () => {
     try {
@@ -66,30 +88,90 @@ const SponsoredAdsSidebar = () => {
     );
   }
 
-  return (
-    <div className="sticky top-4 space-y-4">
-      <h3 className="text-sm font-semibold px-4">Sponsored</h3>
-      {sponsorships.map((sponsorship) => (
-        <Card 
-          key={sponsorship.id}
-          className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
-          onClick={() => handleClick(sponsorship)}
-        >
-          <div className="relative">
-            <img
-              src={sponsorship.banner_url}
-              alt={`${sponsorship.business_name} - Sponsored`}
-              className="w-full h-auto object-cover"
+  const renderCarousel = (setApiFunc: (api: CarouselApi) => void, autoplayRef: any, current: number) => (
+    <Card className="overflow-hidden">
+      <Carousel
+        opts={{ loop: true }}
+        plugins={[autoplayRef.current]}
+        setApi={setApiFunc}
+      >
+        <CarouselContent>
+          {sponsorships.map((sponsorship) => (
+            <CarouselItem key={sponsorship.id}>
+              <div
+                className="cursor-pointer"
+                onClick={() => handleClick(sponsorship)}
+              >
+                {/* Badge */}
+                <div className="absolute top-3 left-3 z-10">
+                  <Badge className="bg-green-500 text-white hover:bg-green-600">
+                    Sponsored
+                  </Badge>
+                </div>
+
+                {/* Banner Image */}
+                <div className="relative aspect-video bg-muted">
+                  <img
+                    src={sponsorship.banner_url}
+                    alt={sponsorship.business_name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* Content */}
+                <div className="p-4 space-y-3">
+                  <h4 className="font-bold text-lg line-clamp-2">
+                    {sponsorship.business_name}
+                  </h4>
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    Premium services and exclusive offers
+                  </p>
+
+                  <div className="flex items-center justify-between pt-2">
+                    <span className="text-xs text-muted-foreground">
+                      by {sponsorship.business_name}
+                    </span>
+                    <a
+                      href={sponsorship.destination_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Learn More
+                      <ArrowRight className="h-3 w-3" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
+
+      {/* Dots Indicator */}
+      {sponsorships.length > 1 && (
+        <div className="flex justify-center gap-1.5 py-3">
+          {sponsorships.map((_, index) => (
+            <button
+              key={index}
+              className={`h-1.5 rounded-full transition-all ${
+                index === current
+                  ? "w-6 bg-primary"
+                  : "w-1.5 bg-muted-foreground/30"
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
             />
-            <div className="absolute top-2 right-2 bg-background/80 backdrop-blur px-2 py-1 rounded-full text-xs font-medium">
-              Sponsored
-            </div>
-          </div>
-          <div className="p-3">
-            <p className="text-sm font-semibold line-clamp-2">{sponsorship.business_name}</p>
-          </div>
-        </Card>
-      ))}
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+
+  return (
+    <div className="space-y-6">
+      {renderCarousel(setApi1, autoplay1Ref, current1)}
+      {renderCarousel(setApi2, autoplay2Ref, current2)}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
-import SponsoredAdsCarousel from "@/components/SponsoredAdsCarousel";
+import Hero from "@/components/Hero";
 import Metrics from "@/components/Metrics";
-import FeaturedListings from "@/components/FeaturedListings";
+import SponsoredAdsCarousel from "@/components/SponsoredAdsCarousel";
 import WhyChooseUs from "@/components/WhyChooseUs";
 import Footer from "@/components/Footer";
 
@@ -11,9 +11,9 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main>
-        <SponsoredAdsCarousel />
+        <Hero />
         <Metrics />
-        <FeaturedListings />
+        <SponsoredAdsCarousel />
         <WhyChooseUs />
       </main>
       <Footer />
