@@ -42,7 +42,7 @@ const PRICING_PLANS = [
 const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [screenshot, setScreenshot] = useState<File | null>(null);
@@ -50,11 +50,12 @@ const Payment = () => {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    if (!user) {
+    // Wait for auth to load before checking user
+    if (!loading && !user) {
       toast.error("Please login to continue");
       navigate("/auth?redirect=/payment");
     }
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
 
   const handlePlanSelect = (planId: string) => {
     setSelectedPlan(planId);
@@ -154,6 +155,21 @@ const Payment = () => {
   };
 
   const selectedPlanDetails = PRICING_PLANS.find(p => p.id === selectedPlan);
+
+  // Show loading state while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="container mx-auto px-4 py-12 max-w-6xl">
+          <div className="text-center">
+            <p>Loading...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
