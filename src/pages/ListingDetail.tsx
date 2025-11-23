@@ -282,46 +282,39 @@ const ListingDetail = () => {
 
                   {listing.phone && (
                     <div className="space-y-2">
-                      <Button
-                        className="w-full rounded-full"
-                        onClick={() => {
-                          if (window.innerWidth < 768) {
-                            window.location.href = `tel:${listing.phone}`;
-                          }
-                        }}
+                      <a
+                        href={`tel:${listing.phone}`}
+                        className="block md:pointer-events-none"
                       >
-                        <Phone className="h-4 w-4 mr-2" />
-                        {window.innerWidth < 768 ? "Call Seller" : listing.phone}
-                      </Button>
-                      <Button
-                        className="w-full rounded-full"
-                        variant="outline"
-                        onClick={() => {
-                          const message = encodeURIComponent(`Hi, I'm interested in your listing: ${listing.title}`);
-                          const phoneNumber = listing.phone.replace(/\D/g, '');
-                          const waLink = `https://wa.me/${phoneNumber}?text=${message}`;
-                          window.open(waLink, '_blank');
-                        }}
+                        <Button className="w-full rounded-full">
+                          <Phone className="h-4 w-4 mr-2" />
+                          Call {listing.phone}
+                        </Button>
+                      </a>
+                      <a
+                        href={`https://wa.me/${listing.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi, I'm interested in your listing: ${listing.title}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block"
                       >
-                        <MessageCircle className="h-4 w-4 mr-2" />
-                        WhatsApp
-                      </Button>
+                        <Button className="w-full rounded-full" variant="outline">
+                          <MessageCircle className="h-4 w-4 mr-2" />
+                          WhatsApp
+                        </Button>
+                      </a>
                     </div>
                   )}
 
                   {listing.email && (
-                    <Button
-                      variant="outline"
-                      className="w-full rounded-full"
-                      onClick={() => {
-                        const subject = encodeURIComponent(`Inquiry about: ${listing.title}`);
-                        const body = encodeURIComponent(`Hi,\n\nI am interested in your listing: ${listing.title}\n\nPlease provide more details.\n\nThank you.`);
-                        window.open(`mailto:${listing.email}?subject=${subject}&body=${body}`);
-                      }}
+                    <a
+                      href={`mailto:${listing.email}?subject=${encodeURIComponent(`Inquiry about: ${listing.title}`)}&body=${encodeURIComponent(`Hi,\n\nI am interested in your listing: ${listing.title}\n\nPlease provide more details.\n\nThank you.`)}`}
+                      className="block"
                     >
-                      <Mail className="h-4 w-4 mr-2" />
-                      Email Seller
-                    </Button>
+                      <Button variant="outline" className="w-full rounded-full">
+                        <Mail className="h-4 w-4 mr-2" />
+                        Email Seller
+                      </Button>
+                    </a>
                   )}
                 </div>
 

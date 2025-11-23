@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { MapPin, Filter } from "lucide-react";
 import { FavoriteButton } from "@/components/FavoriteButton";
+import SponsoredAdsSidebar from "@/components/SponsoredAdsSidebar";
 import {
   Pagination,
   PaginationContent,
@@ -197,12 +198,7 @@ const Jewellery = () => {
         <div className="grid lg:grid-cols-4 gap-6 mb-8">
           {/* Left: Sponsored Ad */}
           <div className="lg:col-span-1">
-            <div className="sticky top-4 bg-muted/30 rounded-lg p-4 border">
-              <h3 className="text-sm font-semibold mb-3">Sponsored</h3>
-              <div className="aspect-square bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center">
-                <span className="text-xs text-muted-foreground">Ad Space</span>
-              </div>
-            </div>
+            <SponsoredAdsSidebar />
           </div>
 
           {/* Right: Listings Only */}

@@ -5,24 +5,24 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Users, FileText, Edit, Trash2, Home } from "lucide-react";
+import { LogOut, Home, Eye } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
-interface Listing {
+interface FeaturedRequest {
   id: string;
   title: string;
   price: number;
-  status: string;
+  is_featured: boolean;
+  payment_proof?: string;
   created_at: string;
-  categories: { name: string };
   profiles: { name: string; email: string };
 }
 
-const AdminDashboard = () => {
+const AdminFeatured = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, signOut } = useAuth();
-  const [listings, setListings] = useState<Listing[]>([]);
+  const [requests, setRequests] = useState<FeaturedRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -32,7 +32,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (isAdmin) {
-      fetchListings();
+      fetchRequests();
     }
   }, [isAdmin]);
 
@@ -69,7 +69,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const fetchListings = async () => {
+  const fetchRequests = async () => {
     try {
       const { data, error } = await supabase
         .from("listings")
@@ -77,20 +77,20 @@ const AdminDashboard = () => {
           id,
           title,
           price,
-          status,
+          is_featured,
           created_at,
-          categories(name),
           profiles(name, email)
         `)
+        .eq("status", "active")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setListings(data || []);
+      setRequests(data || []);
     } catch (error) {
-      console.error("Error fetching listings:", error);
+      console.error("Error fetching requests:", error);
       toast({
         title: "Error",
-        description: "Failed to fetch listings",
+        description: "Failed to fetch featured requests",
         variant: "destructive",
       });
     } finally {
@@ -98,28 +98,26 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleDelete = async (listingId: string) => {
-    if (!confirm("Are you sure you want to delete this listing?")) return;
-
+  const handleToggleFeatured = async (listingId: string, currentStatus: boolean) => {
     try {
       const { error } = await supabase
         .from("listings")
-        .delete()
+        .update({ is_featured: !currentStatus })
         .eq("id", listingId);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Listing deleted successfully",
+        description: `Listing ${!currentStatus ? "featured" : "unfeatured"} successfully`,
       });
 
-      fetchListings();
+      fetchRequests();
     } catch (error) {
-      console.error("Error deleting listing:", error);
+      console.error("Error updating featured status:", error);
       toast({
         title: "Error",
-        description: "Failed to delete listing",
+        description: "Failed to update featured status",
         variant: "destructive",
       });
     }
@@ -142,11 +140,11 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-background">
       <div className="border-b">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
+          <h1 className="text-2xl font-bold text-foreground">Featured Listings</h1>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate("/")}>
+            <Button variant="outline" onClick={() => navigate("/admin/dashboard")}>
               <Home className="h-4 w-4 mr-2" />
-              View Site
+              Dashboard
             </Button>
             <Button variant="outline" onClick={handleLogout}>
               <LogOut className="h-4 w-4 mr-2" />
@@ -157,90 +155,46 @@ const AdminDashboard = () => {
       </div>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Total Listings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold">{listings.length}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Active Listings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold">
-                {listings.filter((l) => l.status === "active").length}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button variant="outline" className="w-full" onClick={() => navigate("/admin/users")}>
-                Manage Users
-              </Button>
-              <Button variant="outline" className="w-full" onClick={() => navigate("/admin/listings")}>
-                Manage Listings
-              </Button>
-              <Button variant="outline" className="w-full" onClick={() => navigate("/admin/featured")}>
-                Featured Requests
-              </Button>
-              <Button variant="outline" className="w-full" onClick={() => navigate("/admin/sponsorships")}>
-                Manage Sponsorships
-              </Button>
-              <Button variant="outline" className="w-full" onClick={() => navigate("/admin/news")}>
-                Manage News
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
         <Card>
           <CardHeader>
-            <CardTitle>All Listings</CardTitle>
-            <CardDescription>Manage all property listings</CardDescription>
+            <CardTitle>Featured Listings Management</CardTitle>
+            <CardDescription>Approve or remove featured listings</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {listings.map((listing) => (
+              {requests.map((request) => (
                 <div
-                  key={listing.id}
+                  key={request.id}
                   className="flex items-center justify-between p-4 border rounded-lg"
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold">{listing.title}</h3>
-                      <Badge variant={listing.status === "active" ? "default" : "secondary"}>
-                        {listing.status}
+                      <h3 className="font-semibold">{request.title}</h3>
+                      <Badge variant={request.is_featured ? "default" : "secondary"}>
+                        {request.is_featured ? "Featured" : "Not Featured"}
                       </Badge>
-                      <Badge variant="outline">{listing.categories.name}</Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      ₹{listing.price.toLocaleString()} • By {listing.profiles.name}
+                      ₹{request.price.toLocaleString()} • By {request.profiles.name} ({request.profiles.email})
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(listing.created_at).toLocaleDateString()}
+                      {new Date(request.created_at).toLocaleDateString()}
                     </p>
                   </div>
                   <div className="flex gap-2">
                     <Button
                       size="sm"
-                      variant="outline"
-                      onClick={() => navigate(`/listing/${listing.id}`)}
+                      variant={request.is_featured ? "secondary" : "default"}
+                      onClick={() => handleToggleFeatured(request.id, request.is_featured)}
                     >
-                      <Edit className="h-4 w-4" />
+                      {request.is_featured ? "Remove Featured" : "Make Featured"}
                     </Button>
                     <Button
                       size="sm"
-                      variant="destructive"
-                      onClick={() => handleDelete(listing.id)}
+                      variant="outline"
+                      onClick={() => navigate(`/listing/${request.id}`)}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Eye className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -253,4 +207,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default AdminFeatured;
