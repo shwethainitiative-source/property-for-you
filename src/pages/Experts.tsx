@@ -4,9 +4,22 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Experts = () => {
   const [curtainOpen, setCurtainOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    contact_number: "",
+    email: "",
+    message: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Trigger curtain animation on mount
@@ -15,6 +28,43 @@ const Experts = () => {
   }, []);
 
   const phoneNumber = "917899828127";
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase.from("messages").insert([
+        {
+          name: formData.name,
+          contact_number: formData.contact_number,
+          email: formData.email,
+          message: formData.message,
+        },
+      ]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Thank you!",
+        description: "Our expert team will contact you soon.",
+      });
+
+      setFormData({ name: "", contact_number: "", email: "", message: "" });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit your message. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const serviceBoxes = [
     {
@@ -84,18 +134,20 @@ const Experts = () => {
           {/* How Can We Help Section */}
           <div className="text-center space-y-6">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">How Can We Help?</h2>
-            <a
-              href={`https://wa.me/${phoneNumber}?text=${encodeURIComponent("Hi, I'd like to connect with you")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button
-                size="lg"
-                className="bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-full px-8 py-6 text-lg font-semibold transition-all"
+            <div className="flex justify-center">
+              <a
+                href={`https://wa.me/${phoneNumber}?text=${encodeURIComponent("Hi, I'd like to connect with you")}`}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                Let's Talk
-              </Button>
-            </a>
+                <Button
+                  size="lg"
+                  className="bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-lg px-8 py-6 text-lg font-semibold transition-all shadow-md hover:shadow-lg"
+                >
+                  Let's Talk
+                </Button>
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -121,15 +173,17 @@ const Experts = () => {
                 </div>
                 <h3 className="text-2xl font-bold text-foreground">Call Center</h3>
                 <p className="text-muted-foreground">Connect with our support team instantly.</p>
-                <a 
-                  href={`tel:+${phoneNumber}`}
-                  className="block md:pointer-events-none"
-                >
-                  <Button className="bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-full px-8 py-6 text-lg font-semibold">
-                    <span className="hidden md:inline">+91 7899828127</span>
-                    <span className="md:hidden">Call Now</span>
-                  </Button>
-                </a>
+                <div className="flex justify-center">
+                  <a 
+                    href={`tel:+${phoneNumber}`}
+                    className="block md:pointer-events-none"
+                  >
+                    <Button className="bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-lg px-8 py-6 text-lg font-semibold shadow-md hover:shadow-lg transition-all">
+                      <span className="hidden md:inline">+91 7899828127</span>
+                      <span className="md:hidden">Call Now</span>
+                    </Button>
+                  </a>
+                </div>
               </CardContent>
             </Card>
 
@@ -141,19 +195,95 @@ const Experts = () => {
                 </div>
                 <h3 className="text-2xl font-bold text-foreground">Chat 24/7</h3>
                 <p className="text-muted-foreground">Send us a message anytime.</p>
-                <a
-                  href={`https://wa.me/${phoneNumber}?text=${encodeURIComponent("Hi, I'd like to connect with you")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button className="bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-full px-8 py-6 text-lg font-semibold">
-                    <span className="hidden md:inline">WhatsApp</span>
-                    <span className="md:hidden">Chat Now</span>
-                  </Button>
-                </a>
+                <div className="flex justify-center">
+                  <a
+                    href={`https://wa.me/${phoneNumber}?text=${encodeURIComponent("Hi, I'd like to connect with you")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button className="bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-lg px-8 py-6 text-lg font-semibold shadow-md hover:shadow-lg transition-all">
+                      <span className="hidden md:inline">WhatsApp</span>
+                      <span className="md:hidden">Chat Now</span>
+                    </Button>
+                  </a>
+                </div>
               </CardContent>
             </Card>
           </div>
+        </div>
+      </section>
+
+      {/* Submit Your Issue Section */}
+      <section className="bg-white py-16 px-4">
+        <div className="container mx-auto max-w-2xl">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Submit Your Issue</h2>
+            <p className="text-muted-foreground">Our expert team will get back to you shortly</p>
+          </div>
+
+          <Card className="shadow-xl">
+            <CardContent className="p-8">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name *</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Enter your full name"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="contact_number">Contact Number *</Label>
+                  <Input
+                    id="contact_number"
+                    name="contact_number"
+                    value={formData.contact_number}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Enter your contact number"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email ID *</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Enter your email"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="message">Message / Issue Description *</Label>
+                  <Textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Describe your issue or query"
+                    rows={6}
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-lg px-8 py-6 text-lg font-semibold shadow-md hover:shadow-lg transition-all"
+                >
+                  {isSubmitting ? "Submitting..." : "Submit"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </section>
 

@@ -4,9 +4,8 @@ import {
   FileText, 
   Star, 
   Megaphone, 
-  FolderOpen,
+  Newspaper,
   MessageSquare,
-  BarChart3,
   Settings,
   LogOut
 } from "lucide-react";
@@ -20,9 +19,8 @@ const menuItems = [
   { icon: FileText, label: "Listings", path: "/admin/listings" },
   { icon: Star, label: "Featured", path: "/admin/featured" },
   { icon: Megaphone, label: "Sponsorships", path: "/admin/sponsorships" },
-  { icon: FolderOpen, label: "Categories", path: "/admin/categories" },
+  { icon: Newspaper, label: "News", path: "/admin/news" },
   { icon: MessageSquare, label: "Messages", path: "/admin/messages" },
-  { icon: BarChart3, label: "Reports", path: "/admin/reports" },
   { icon: Settings, label: "Settings", path: "/admin/settings" },
 ];
 
