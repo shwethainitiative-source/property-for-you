@@ -19,7 +19,7 @@ import Payment from "./pages/Payment";
 import SponsorshipApply from "./pages/SponsorshipApply";
 import AdminSponsorships from "./pages/AdminSponsorships";
 import AdminLogin from "./pages/AdminLogin";
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminDashboard from "./pages/AdminDashboardNew";
 import AdminUsers from "./pages/AdminUsers";
 import AdminListings from "./pages/AdminListings";
 import AdminFeatured from "./pages/AdminFeatured";

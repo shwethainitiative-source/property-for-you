@@ -76,9 +76,9 @@ const SponsoredAdsCarousel = () => {
   }
 
   return (
-    <section className="py-12">
-      <div className="container mx-auto px-4">
-        <Carousel 
+    <section className="py-12 bg-muted/30">
+      <div className="container mx-auto px-4 max-w-5xl">
+        <Carousel
           className="w-full" 
           opts={{ loop: true }}
           plugins={[autoplayRef.current]}

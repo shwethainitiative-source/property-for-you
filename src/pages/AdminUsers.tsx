@@ -4,8 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Home, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import AdminLayout from "@/components/admin/AdminLayout";
 import {
   Table,
   TableBody,
@@ -27,7 +28,7 @@ interface User {
 const AdminUsers = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, loading: authLoading, signOut } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -77,23 +78,15 @@ const AdminUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
-        .select(`
-          id,
-          user_id,
-          name,
-          email,
-          phone,
-          created_at
-        `)
+        .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (profilesError) throw profilesError;
 
-      // Get listing count for each user
-      const usersWithCount = await Promise.all(
-        (data || []).map(async (profile) => {
+      const usersWithCounts = await Promise.all(
+        (profiles || []).map(async (profile) => {
           const { count } = await supabase
             .from("listings")
             .select("*", { count: "exact", head: true })
@@ -106,7 +99,7 @@ const AdminUsers = () => {
         })
       );
 
-      setUsers(usersWithCount);
+      setUsers(usersWithCounts);
     } catch (error) {
       console.error("Error fetching users:", error);
       toast({
@@ -146,42 +139,30 @@ const AdminUsers = () => {
     }
   };
 
-  const handleLogout = async () => {
-    await signOut();
-    navigate("/admin");
-  };
-
-  if (!isAdmin || loading) {
+  if (authLoading || !isAdmin || loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="border-b">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-foreground">User Management</h1>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate("/admin/dashboard")}>
-              <Home className="h-4 w-4 mr-2" />
-              Dashboard
-            </Button>
-            <Button variant="outline" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
-          </div>
+    <AdminLayout>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">User Management</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage all registered users
+          </p>
         </div>
-      </div>
 
-      <main className="container mx-auto px-4 py-8">
         <Card>
           <CardHeader>
             <CardTitle>All Users</CardTitle>
-            <CardDescription>Manage registered users</CardDescription>
+            <CardDescription>View and manage all registered users</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
@@ -218,8 +199,8 @@ const AdminUsers = () => {
             </Table>
           </CardContent>
         </Card>
-      </main>
-    </div>
+      </div>
+    </AdminLayout>
   );
 };
 
