@@ -14,17 +14,7 @@ const Experts = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleWhatsAppClick = () => {
-    const message = encodeURIComponent("Hi, I'd like to connect with you");
-    window.open(`https://wa.me/917899828127?text=${message}`, "_blank");
-  };
-
-  const handleCallClick = () => {
-    // Mobile: trigger dialer, Desktop: number shown in button text
-    if (window.innerWidth < 768) {
-      window.location.href = "tel:+917899828127";
-    }
-  };
+  const phoneNumber = "917899828127";
 
   const serviceBoxes = [
     {
@@ -94,13 +84,18 @@ const Experts = () => {
           {/* How Can We Help Section */}
           <div className="text-center space-y-6">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">How Can We Help?</h2>
-            <Button
-              onClick={handleWhatsAppClick}
-              size="lg"
-              className="bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-full px-8 py-6 text-lg font-semibold transition-all"
+            <a
+              href={`https://wa.me/${phoneNumber}?text=${encodeURIComponent("Hi, I'd like to connect with you")}`}
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              Let's Talk
-            </Button>
+              <Button
+                size="lg"
+                className="bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-full px-8 py-6 text-lg font-semibold transition-all"
+              >
+                Let's Talk
+              </Button>
+            </a>
           </div>
         </div>
       </section>
@@ -126,12 +121,15 @@ const Experts = () => {
                 </div>
                 <h3 className="text-2xl font-bold text-foreground">Call Center</h3>
                 <p className="text-muted-foreground">Connect with our support team instantly.</p>
-                <Button
-                  onClick={handleCallClick}
-                  className="bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-full px-8 py-6 text-lg font-semibold"
+                <a 
+                  href={`tel:+${phoneNumber}`}
+                  className="block md:pointer-events-none"
                 >
-                  {typeof window !== "undefined" && window.innerWidth < 768 ? "Call Now" : "+91 7899828127"}
-                </Button>
+                  <Button className="bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-full px-8 py-6 text-lg font-semibold">
+                    <span className="hidden md:inline">+91 7899828127</span>
+                    <span className="md:hidden">Call Now</span>
+                  </Button>
+                </a>
               </CardContent>
             </Card>
 
@@ -143,12 +141,16 @@ const Experts = () => {
                 </div>
                 <h3 className="text-2xl font-bold text-foreground">Chat 24/7</h3>
                 <p className="text-muted-foreground">Send us a message anytime.</p>
-                <Button
-                  onClick={handleWhatsAppClick}
-                  className="bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-full px-8 py-6 text-lg font-semibold"
+                <a
+                  href={`https://wa.me/${phoneNumber}?text=${encodeURIComponent("Hi, I'd like to connect with you")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  {typeof window !== "undefined" && window.innerWidth < 768 ? "Chat Now" : "WhatsApp"}
-                </Button>
+                  <Button className="bg-[#001a4d] text-white hover:bg-[#002d7a] rounded-full px-8 py-6 text-lg font-semibold">
+                    <span className="hidden md:inline">WhatsApp</span>
+                    <span className="md:hidden">Chat Now</span>
+                  </Button>
+                </a>
               </CardContent>
             </Card>
           </div>
