@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Home, Edit, Trash2, Eye } from "lucide-react";
+import { Edit, Trash2, Eye } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import AdminLayout from "@/components/admin/AdminLayout";
 
 interface Listing {
   id: string;
@@ -21,7 +22,7 @@ interface Listing {
 const AdminListings = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, loading: authLoading, signOut } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -98,31 +99,6 @@ const AdminListings = () => {
     }
   };
 
-  const handleStatusChange = async (listingId: string, newStatus: string) => {
-    try {
-      const { error } = await supabase
-        .from("listings")
-        .update({ status: newStatus })
-        .eq("id", listingId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: `Listing ${newStatus === "active" ? "approved" : "rejected"}`,
-      });
-
-      fetchListings();
-    } catch (error) {
-      console.error("Error updating listing:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update listing",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleDelete = async (listingId: string) => {
     if (!confirm("Are you sure you want to delete this listing?")) return;
 
@@ -150,49 +126,37 @@ const AdminListings = () => {
     }
   };
 
-  const handleLogout = async () => {
-    await signOut();
-    navigate("/admin");
-  };
-
-  if (!isAdmin || loading) {
+  if (authLoading || !isAdmin || loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="border-b">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-foreground">Listings Management</h1>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate("/admin/dashboard")}>
-              <Home className="h-4 w-4 mr-2" />
-              Dashboard
-            </Button>
-            <Button variant="outline" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
-          </div>
+    <AdminLayout>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Listings Management</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage all property listings
+          </p>
         </div>
-      </div>
 
-      <main className="container mx-auto px-4 py-8">
         <Card>
           <CardHeader>
             <CardTitle>All Listings</CardTitle>
-            <CardDescription>Manage and moderate all property listings</CardDescription>
+            <CardDescription>View and manage all property listings</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {listings.map((listing) => (
                 <div
                   key={listing.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
+                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
@@ -203,31 +167,13 @@ const AdminListings = () => {
                       <Badge variant="outline">{listing.categories.name}</Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      ₹{listing.price.toLocaleString()} • By {listing.profiles.name} ({listing.profiles.email})
+                      ₹{listing.price.toLocaleString()} • By {listing.profiles.name}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {new Date(listing.created_at).toLocaleDateString()}
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    {listing.status === "pending" && (
-                      <>
-                        <Button
-                          size="sm"
-                          variant="default"
-                          onClick={() => handleStatusChange(listing.id, "active")}
-                        >
-                          Approve
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => handleStatusChange(listing.id, "rejected")}
-                        >
-                          Reject
-                        </Button>
-                      </>
-                    )}
                     <Button
                       size="sm"
                       variant="outline"
@@ -248,8 +194,8 @@ const AdminListings = () => {
             </div>
           </CardContent>
         </Card>
-      </main>
-    </div>
+      </div>
+    </AdminLayout>
   );
 };
 
