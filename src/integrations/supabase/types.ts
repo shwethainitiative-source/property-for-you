@@ -106,6 +106,7 @@ export type Database = {
           is_featured: boolean
           location_city: string
           location_locality: string | null
+          payment_proof: string | null
           price: number
           seller_email: string
           seller_name: string
@@ -124,6 +125,7 @@ export type Database = {
           is_featured?: boolean
           location_city: string
           location_locality?: string | null
+          payment_proof?: string | null
           price: number
           seller_email: string
           seller_name: string
@@ -142,6 +144,7 @@ export type Database = {
           is_featured?: boolean
           location_city?: string
           location_locality?: string | null
+          payment_proof?: string | null
           price?: number
           seller_email?: string
           seller_name?: string

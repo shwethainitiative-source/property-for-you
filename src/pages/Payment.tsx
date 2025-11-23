@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -40,11 +42,19 @@ const PRICING_PLANS = [
 const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [screenshotPreview, setScreenshotPreview] = useState<string>("");
   const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      toast.error("Please login to continue");
+      navigate("/auth?redirect=/payment");
+    }
+  }, [user, navigate]);
 
   const handlePlanSelect = (planId: string) => {
     setSelectedPlan(planId);
@@ -65,15 +75,82 @@ const Payment = () => {
       return;
     }
 
+    if (!user) {
+      toast.error("Please login to continue");
+      navigate("/auth");
+      return;
+    }
+
     setUploading(true);
-    
-    // Simulate upload and submission
-    setTimeout(() => {
+
+    try {
+      // Get pending listing data from sessionStorage
+      const pendingListingData = sessionStorage.getItem("pendingListing");
+      if (!pendingListingData) {
+        toast.error("No pending listing found. Please start over.");
+        navigate("/post-ad");
+        return;
+      }
+
+      const listingData = JSON.parse(pendingListingData);
+
+      // Upload payment screenshot to storage
+      const fileExt = screenshot.name.split(".").pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError, data: uploadData } = await supabase.storage
+        .from("listing-images")
+        .upload(`payment-proofs/${fileName}`, screenshot);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("listing-images")
+        .getPublicUrl(`payment-proofs/${fileName}`);
+
+      // Create the listing with payment proof
+      const { data: listing, error: listingError } = await supabase
+        .from("listings")
+        .insert({
+          user_id: user.id,
+          category_id: listingData.categoryId,
+          title: listingData.title,
+          price: listingData.price,
+          description: listingData.description,
+          location_city: listingData.location_city,
+          location_locality: listingData.location_locality,
+          seller_name: listingData.seller_name,
+          seller_email: listingData.seller_email,
+          seller_phone: listingData.seller_phone,
+          attributes: listingData.attributes,
+          is_featured: false, // Admin needs to approve first
+          payment_proof: publicUrl,
+        })
+        .select()
+        .single();
+
+      if (listingError) throw listingError;
+
+      // Associate uploaded images with the listing
+      if (listingData.imageUrls && listingData.imageUrls.length > 0) {
+        for (let i = 0; i < listingData.imageUrls.length; i++) {
+          await supabase.from("listing_images").insert({
+            listing_id: listing.id,
+            image_url: listingData.imageUrls[i],
+            display_order: i,
+          });
+        }
+      }
+
       toast.success("Payment screenshot uploaded! Your listing will be featured once admin approves.");
       sessionStorage.removeItem("pendingListing");
       navigate("/my-listings");
+    } catch (error) {
+      console.error("Error submitting payment:", error);
+      toast.error("Failed to submit payment. Please try again.");
+    } finally {
       setUploading(false);
-    }, 2000);
+    }
   };
 
   const selectedPlanDetails = PRICING_PLANS.find(p => p.id === selectedPlan);

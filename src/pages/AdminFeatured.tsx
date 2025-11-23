@@ -13,7 +13,7 @@ interface FeaturedRequest {
   title: string;
   price: number;
   is_featured: boolean;
-  payment_proof?: string;
+  payment_proof: string | null;
   created_at: string;
   profiles: { name: string; email: string };
 }
@@ -78,10 +78,12 @@ const AdminFeatured = () => {
           title,
           price,
           is_featured,
+          payment_proof,
           created_at,
           profiles(name, email)
         `)
         .eq("status", "active")
+        .not("payment_proof", "is", null)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -157,8 +159,8 @@ const AdminFeatured = () => {
       <main className="container mx-auto px-4 py-8">
         <Card>
           <CardHeader>
-            <CardTitle>Featured Listings Management</CardTitle>
-            <CardDescription>Approve or remove featured listings</CardDescription>
+            <CardTitle>Paid Featured Listings</CardTitle>
+            <CardDescription>Approve or remove paid featured listings with payment proof</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -180,6 +182,16 @@ const AdminFeatured = () => {
                     <p className="text-xs text-muted-foreground">
                       {new Date(request.created_at).toLocaleDateString()}
                     </p>
+                    {request.payment_proof && (
+                      <a
+                        href={request.payment_proof}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-primary hover:underline"
+                      >
+                        View Payment Proof
+                      </a>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     <Button
