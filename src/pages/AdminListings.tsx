@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Users, FileText, Edit, Trash2, Home } from "lucide-react";
+import { LogOut, Home, Edit, Trash2, Eye } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 interface Listing {
@@ -18,7 +18,7 @@ interface Listing {
   profiles: { name: string; email: string };
 }
 
-const AdminDashboard = () => {
+const AdminListings = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, signOut } = useAuth();
@@ -98,6 +98,31 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleStatusChange = async (listingId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from("listings")
+        .update({ status: newStatus })
+        .eq("id", listingId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Listing ${newStatus === "active" ? "approved" : "rejected"}`,
+      });
+
+      fetchListings();
+    } catch (error) {
+      console.error("Error updating listing:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update listing",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDelete = async (listingId: string) => {
     if (!confirm("Are you sure you want to delete this listing?")) return;
 
@@ -142,11 +167,11 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-background">
       <div className="border-b">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
+          <h1 className="text-2xl font-bold text-foreground">Listings Management</h1>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate("/")}>
+            <Button variant="outline" onClick={() => navigate("/admin/dashboard")}>
               <Home className="h-4 w-4 mr-2" />
-              View Site
+              Dashboard
             </Button>
             <Button variant="outline" onClick={handleLogout}>
               <LogOut className="h-4 w-4 mr-2" />
@@ -157,53 +182,10 @@ const AdminDashboard = () => {
       </div>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Total Listings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold">{listings.length}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Active Listings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold">
-                {listings.filter((l) => l.status === "active").length}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button variant="outline" className="w-full" onClick={() => navigate("/admin/users")}>
-                Manage Users
-              </Button>
-              <Button variant="outline" className="w-full" onClick={() => navigate("/admin/listings")}>
-                Manage Listings
-              </Button>
-              <Button variant="outline" className="w-full" onClick={() => navigate("/admin/featured")}>
-                Featured Requests
-              </Button>
-              <Button variant="outline" className="w-full" onClick={() => navigate("/admin/sponsorships")}>
-                Manage Sponsorships
-              </Button>
-              <Button variant="outline" className="w-full" onClick={() => navigate("/admin/news")}>
-                Manage News
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
         <Card>
           <CardHeader>
             <CardTitle>All Listings</CardTitle>
-            <CardDescription>Manage all property listings</CardDescription>
+            <CardDescription>Manage and moderate all property listings</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -221,19 +203,37 @@ const AdminDashboard = () => {
                       <Badge variant="outline">{listing.categories.name}</Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      ₹{listing.price.toLocaleString()} • By {listing.profiles.name}
+                      ₹{listing.price.toLocaleString()} • By {listing.profiles.name} ({listing.profiles.email})
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {new Date(listing.created_at).toLocaleDateString()}
                     </p>
                   </div>
                   <div className="flex gap-2">
+                    {listing.status === "pending" && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={() => handleStatusChange(listing.id, "active")}
+                        >
+                          Approve
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleStatusChange(listing.id, "rejected")}
+                        >
+                          Reject
+                        </Button>
+                      </>
+                    )}
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => navigate(`/listing/${listing.id}`)}
                     >
-                      <Edit className="h-4 w-4" />
+                      <Eye className="h-4 w-4" />
                     </Button>
                     <Button
                       size="sm"
@@ -253,4 +253,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default AdminListings;

@@ -11,7 +11,6 @@ import Auth from "./pages/Auth";
 import Properties from "./pages/Properties";
 import Automobiles from "./pages/Automobiles";
 import Jewellery from "./pages/Jewellery";
-import AllListings from "./pages/AllListings";
 import Experts from "./pages/Experts";
 import News from "./pages/News";
 import Favorites from "./pages/Favorites";
@@ -21,6 +20,10 @@ import SponsorshipApply from "./pages/SponsorshipApply";
 import AdminSponsorships from "./pages/AdminSponsorships";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminUsers from "./pages/AdminUsers";
+import AdminListings from "./pages/AdminListings";
+import AdminFeatured from "./pages/AdminFeatured";
+import AdminNews from "./pages/AdminNews";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +49,10 @@ const App = () => (
           <Route path="/sponsorship-apply" element={<SponsorshipApply />} />
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/listings" element={<AdminListings />} />
+          <Route path="/admin/featured" element={<AdminFeatured />} />
+          <Route path="/admin/news" element={<AdminNews />} />
           <Route path="/admin/sponsorships" element={<AdminSponsorships />} />
           <Route path="/listing/:id" element={<ListingDetail />} />
           <Route path="/edit-listing/:id" element={<EditListing />} />

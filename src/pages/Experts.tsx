@@ -20,10 +20,10 @@ const Experts = () => {
   };
 
   const handleCallClick = () => {
+    // Mobile: trigger dialer, Desktop: number shown in button text
     if (window.innerWidth < 768) {
       window.location.href = "tel:+917899828127";
     }
-    // On desktop, number is displayed in button, no action needed
   };
 
   const serviceBoxes = [
