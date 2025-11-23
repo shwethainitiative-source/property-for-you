@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -156,19 +155,20 @@ const AdminSponsorships = () => {
 
   if (authLoading || loading || !isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin" />
+        </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="min-h-screen">
-      <Header />
-      <main className="container mx-auto px-4 py-12">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Sponsorship Management</h1>
-          <p className="text-muted-foreground">Manage and review sponsorship applications</p>
+    <AdminLayout>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Sponsorship Management</h1>
+          <p className="text-muted-foreground mt-1">Manage and review sponsorship applications</p>
         </div>
 
         <Tabs defaultValue="pending" className="space-y-6">
@@ -343,9 +343,8 @@ const AdminSponsorships = () => {
             </TabsContent>
           ))}
         </Tabs>
-      </main>
-      <Footer />
-    </div>
+      </div>
+    </AdminLayout>
   );
 };
 

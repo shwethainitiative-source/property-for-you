@@ -80,9 +80,13 @@ const AdminListings = () => {
           price,
           status,
           created_at,
+          is_featured,
+          payment_proof,
           categories(name),
           profiles(name, email)
         `)
+        .is("payment_proof", null)
+        .eq("is_featured", false)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -148,8 +152,8 @@ const AdminListings = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>All Listings</CardTitle>
-            <CardDescription>View and manage all property listings</CardDescription>
+            <CardTitle>Free Listings</CardTitle>
+            <CardDescription>View and manage free (non-paid) listings</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">

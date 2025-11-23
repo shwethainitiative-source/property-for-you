@@ -206,9 +206,15 @@ const PostAd = () => {
         attributes.purity = formData.purity;
       }
 
-      // If featured, redirect to payment page
+      // If featured, upload images first then redirect to payment page
       if (isFeatured) {
-        // Store listing data in sessionStorage for payment page
+        // Create a temporary listing ID for image upload
+        const tempListingId = `temp-${user.id}-${Date.now()}`;
+        
+        // Upload images first
+        const imageUrls = await uploadImages(tempListingId);
+        
+        // Store listing data with uploaded image URLs in sessionStorage
         sessionStorage.setItem("pendingListing", JSON.stringify({
           title,
           categoryId,
@@ -220,8 +226,7 @@ const PostAd = () => {
           seller_email: profile.email,
           seller_phone: profile.phone,
           attributes,
-          images: imagePreviews,
-          imageFiles: images.map(f => f.name),
+          imageUrls, // Store actual uploaded URLs
         }));
         
         toast.info("Redirecting to payment page...");
