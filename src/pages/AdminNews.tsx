@@ -20,7 +20,7 @@ interface NewsArticle {
 const AdminNews = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, signOut } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -32,8 +32,10 @@ const AdminNews = () => {
   });
 
   useEffect(() => {
-    checkAdminAccess();
-  }, [user]);
+    if (!authLoading) {
+      checkAdminAccess();
+    }
+  }, [user, authLoading]);
 
   useEffect(() => {
     if (isAdmin) {
@@ -48,16 +50,14 @@ const AdminNews = () => {
     }
 
     try {
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .eq("role", "admin")
-        .maybeSingle();
+      const { data: hasAdminRole, error } = await supabase.rpc("has_role", {
+        _user_id: user.id,
+        _role: "admin"
+      });
 
       if (error) throw error;
 
-      if (!data) {
+      if (!hasAdminRole) {
         toast({
           title: "Access Denied",
           description: "You are not authorized to access this page.",
