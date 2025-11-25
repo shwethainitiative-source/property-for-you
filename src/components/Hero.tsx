@@ -44,10 +44,10 @@ const Hero = () => {
       {/* Content */}
       <div className="relative container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center space-y-5">
-          {/* Heading - Smaller */}
+          {/* Heading */}
           <div className="space-y-4">
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
-              The Property For You — Buy. Sell. Connect.
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight">
+              Buy. Sell. Connect.
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
               Find verified listings for land, homes, cars, and jewellery — all in one trusted place.

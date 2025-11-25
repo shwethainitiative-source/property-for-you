@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import logo from "@/assets/logo.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,8 +32,12 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <h1 className="text-2xl font-bold text-primary">ThePropertyForYou</h1>
+          <Link to="/" className="flex items-center">
+            <img 
+              src={logo} 
+              alt="ThePropertyForYou" 
+              className="h-12 w-auto"
+            />
           </Link>
 
           {/* Desktop Navigation */}
