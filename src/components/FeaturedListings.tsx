@@ -138,7 +138,7 @@ const FeaturedListings = () => {
                           No Image
                         </div>
                       )}
-                      <Badge className="absolute top-2 left-2 bg-accent text-accent-foreground">
+                      <Badge variant="featured" className="absolute top-2 left-2">
                         Featured
                       </Badge>
                       <FavoriteButton listingId={listing.id} />

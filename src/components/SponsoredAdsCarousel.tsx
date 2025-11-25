@@ -85,26 +85,23 @@ const SponsoredAdsCarousel = () => {
           setApi={setApi}
         >
           <CarouselContent>
-            {sponsorships.map((sponsorship, index) => (
+            {sponsorships.map((sponsorship) => (
               <CarouselItem key={sponsorship.id}>
                 <Card 
                   className="overflow-hidden cursor-pointer hover:shadow-xl transition-all"
                   onClick={() => handleClick(sponsorship)}
                 >
-                  {/* Badge */}
-                  <div className="absolute top-4 left-4 z-10">
-                    <Badge className="bg-green-500 text-white hover:bg-green-600">
-                      Sponsored
-                    </Badge>
-                  </div>
-
-                  {/* Banner Image */}
-                  <div className="relative aspect-[16/6] bg-muted">
+                  {/* Banner Image with fixed aspect ratio */}
+                  <div className="relative aspect-[21/9] bg-muted">
                     <img
                       src={sponsorship.banner_url}
                       alt={sponsorship.business_name}
                       className="w-full h-full object-cover"
                     />
+                    {/* Badge on every slide */}
+                    <Badge className="absolute top-4 left-4 z-10 bg-green-500 text-white hover:bg-green-600">
+                      Sponsored
+                    </Badge>
                   </div>
 
                   {/* Content */}
