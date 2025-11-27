@@ -181,7 +181,7 @@ const AdminListings = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => navigate(`/listing/${listing.id}`)}
+                      onClick={() => navigate(`/admin/listing/${listing.id}`)}
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
