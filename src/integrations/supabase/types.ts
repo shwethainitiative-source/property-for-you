@@ -264,6 +264,53 @@ export type Database = {
         }
         Relationships: []
       }
+      popup_ad_schedules: {
+        Row: {
+          admin_approved: boolean
+          created_at: string
+          id: string
+          listing_id: string
+          payment_amount: number
+          payment_proof: string | null
+          payment_status: string
+          schedule_date: string
+          slot_number: number
+          updated_at: string
+        }
+        Insert: {
+          admin_approved?: boolean
+          created_at?: string
+          id?: string
+          listing_id: string
+          payment_amount?: number
+          payment_proof?: string | null
+          payment_status?: string
+          schedule_date: string
+          slot_number: number
+          updated_at?: string
+        }
+        Update: {
+          admin_approved?: boolean
+          created_at?: string
+          id?: string
+          listing_id?: string
+          payment_amount?: number
+          payment_proof?: string | null
+          payment_status?: string
+          schedule_date?: string
+          slot_number?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "popup_ad_schedules_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string

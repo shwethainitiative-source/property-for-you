@@ -7,7 +7,8 @@ import {
   Newspaper,
   MessageSquare,
   Settings,
-  LogOut
+  LogOut,
+  Sparkles
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ const menuItems = [
   { icon: Users, label: "Users", path: "/admin/users" },
   { icon: FileText, label: "Listings", path: "/admin/listings" },
   { icon: Star, label: "Featured", path: "/admin/featured" },
+  { icon: Sparkles, label: "Popup Ads", path: "/admin/popup-ads" },
   { icon: Megaphone, label: "Sponsorships", path: "/admin/sponsorships" },
   { icon: Newspaper, label: "News", path: "/admin/news" },
   { icon: MessageSquare, label: "Messages", path: "/admin/messages" },

@@ -204,7 +204,7 @@ const AdminFeatured = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => navigate(`/listing/${request.id}`)}
+                      onClick={() => navigate(`/admin/listing/${request.id}`)}
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
