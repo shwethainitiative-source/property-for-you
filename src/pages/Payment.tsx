@@ -143,7 +143,26 @@ const Payment = () => {
         }
       }
 
-      toast.success("Payment screenshot uploaded! Your listing will be featured once admin approves.");
+      // If this is a popup promotion, create popup_ad_schedules entry
+      if (listingData.popupSchedule) {
+        const { error: popupError } = await supabase
+          .from("popup_ad_schedules")
+          .insert({
+            listing_id: listing.id,
+            schedule_date: listingData.popupSchedule.date,
+            slot_number: listingData.popupSchedule.slot,
+            payment_amount: 999, // Popup promotion price
+            payment_proof: publicUrl,
+            payment_status: "pending",
+            admin_approved: false,
+          });
+
+        if (popupError) throw popupError;
+        toast.success("Popup promotion request submitted! Admin will review your payment.");
+      } else {
+        toast.success("Payment screenshot uploaded! Your listing will be featured once admin approves.");
+      }
+
       sessionStorage.removeItem("pendingListing");
       navigate("/my-listings");
     } catch (error) {

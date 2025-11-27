@@ -80,7 +80,7 @@ const ActiveSponsorships = () => {
                       alt={`${sponsorship.business_name} - Sponsored`}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-2 right-2 bg-background/80 backdrop-blur px-3 py-1 rounded-full text-xs font-medium">
+                    <div className="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-md">
                       Sponsored
                     </div>
                   </div>
