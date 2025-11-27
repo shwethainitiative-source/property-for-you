@@ -49,7 +49,7 @@ const SponsoredSection = () => {
                       </div>
                     </div>
                     <div className="p-6 md:p-8 flex flex-col justify-center space-y-4">
-                      <Badge className="w-fit bg-accent text-accent-foreground">Sponsored</Badge>
+                      <Badge className="w-fit bg-green-500 text-white hover:bg-green-600">Sponsored</Badge>
                       <h3 className="text-2xl md:text-3xl font-bold text-foreground">
                         {ad.subtitle}
                       </h3>
