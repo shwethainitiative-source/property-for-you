@@ -255,7 +255,7 @@ const Automobiles = () => {
                           <img
                             src={listing.listing_images[0].image_url}
                             alt={listing.title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
