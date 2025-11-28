@@ -99,16 +99,9 @@ const SponsoredAdsSidebar = () => {
           {sponsorships.map((sponsorship) => (
             <CarouselItem key={sponsorship.id}>
               <div
-                className="cursor-pointer"
+                className="cursor-pointer relative"
                 onClick={() => handleClick(sponsorship)}
               >
-                {/* Badge */}
-                <div className="absolute top-3 left-3 z-10">
-                  <Badge className="bg-green-500 text-white hover:bg-green-600">
-                    Sponsored
-                  </Badge>
-                </div>
-
                 {/* Banner Image */}
                 <div className="relative aspect-video bg-muted">
                   <img
@@ -116,6 +109,10 @@ const SponsoredAdsSidebar = () => {
                     alt={sponsorship.business_name}
                     className="w-full h-full object-cover"
                   />
+                  {/* Badge on every slide */}
+                  <Badge className="absolute top-3 left-3 z-10 bg-green-500 text-white hover:bg-green-600">
+                    Sponsored
+                  </Badge>
                 </div>
 
                 {/* Content */}

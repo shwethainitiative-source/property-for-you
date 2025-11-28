@@ -32,6 +32,18 @@ const FeaturedPopupAds = () => {
   }, []);
 
   useEffect(() => {
+    // Prevent body scroll when popup is open
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
     if (isOpen && listings.length > 1) {
       const interval = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % listings.length);
@@ -98,7 +110,7 @@ const FeaturedPopupAds = () => {
   const images = currentListing.listing_images || [];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
       <div className="relative bg-background rounded-2xl shadow-2xl max-w-lg w-full mx-4 overflow-hidden animate-scale-in">
         {/* Close Button */}
         <button
@@ -106,7 +118,7 @@ const FeaturedPopupAds = () => {
           className="absolute top-3 right-3 z-20 bg-background/80 hover:bg-background rounded-full p-2 shadow-lg transition-all"
           aria-label="Close popup"
         >
-          <X className="h-4 w-4" />
+          <X className="h-5 w-5" />
         </button>
 
         {/* Featured Badge */}
@@ -171,16 +183,6 @@ const FeaturedPopupAds = () => {
               ))}
             </div>
           )}
-
-          {/* Close Button at Bottom */}
-          <Button
-            onClick={handleClose}
-            variant="outline"
-            className="w-full mt-2"
-            size="sm"
-          >
-            Close
-          </Button>
         </div>
       </div>
     </div>
