@@ -98,7 +98,7 @@ const ListingDetail = () => {
                     <img
                       src={listing.images[currentImageIndex]}
                       alt={listing.title}
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-cover"
                     />
                     {listing.isFeatured && (
                       <Badge className="absolute top-4 right-4 bg-accent text-accent-foreground">
