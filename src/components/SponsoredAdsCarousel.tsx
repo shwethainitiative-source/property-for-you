@@ -76,8 +76,8 @@ const SponsoredAdsCarousel = () => {
   }
 
   return (
-    <section className="py-12 mb-16 bg-muted/30 max-h-[50vh]">
-      <div className="container mx-auto px-4 max-w-5xl h-full">
+    <section className="py-12 mb-16 bg-muted/30">
+      <div className="container mx-auto px-4 max-w-5xl max-h-[50vh]">
         <Carousel
           className="w-full" 
           opts={{ loop: true }}
