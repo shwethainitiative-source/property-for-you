@@ -78,7 +78,7 @@ const FeaturedListings = () => {
   ];
 
   return (
-    <section className="py-12 bg-accent/10">
+    <section className="py-16 bg-accent/10">
       <div className="container mx-auto px-4">
         <div className="space-y-6">
           <div className="text-center space-y-2">
