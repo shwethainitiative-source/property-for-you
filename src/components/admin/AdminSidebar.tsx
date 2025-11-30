@@ -8,7 +8,8 @@ import {
   MessageSquare,
   Settings,
   LogOut,
-  Sparkles
+  Sparkles,
+  GraduationCap
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ const menuItems = [
   { icon: Star, label: "Featured", path: "/admin/featured" },
   { icon: Sparkles, label: "Popup Ads", path: "/admin/popup-ads" },
   { icon: Megaphone, label: "Sponsorships", path: "/admin/sponsorships" },
+  { icon: GraduationCap, label: "Experts", path: "/admin/experts" },
   { icon: Newspaper, label: "News", path: "/admin/news" },
   { icon: MessageSquare, label: "Messages", path: "/admin/messages" },
   { icon: Settings, label: "Settings", path: "/admin/settings" },

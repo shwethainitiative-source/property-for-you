@@ -9,6 +9,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { ExpertContactDialog } from "@/components/ExpertContactDialog";
+
+interface Expert {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  image_url: string;
+}
 
 const Experts = () => {
   const [curtainOpen, setCurtainOpen] = useState(false);
@@ -19,6 +28,9 @@ const Experts = () => {
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [experts, setExperts] = useState<Expert[]>([]);
+  const [selectedExpert, setSelectedExpert] = useState<Expert | null>(null);
+  const [contactDialogOpen, setContactDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -26,6 +38,30 @@ const Experts = () => {
     const timer = setTimeout(() => setCurtainOpen(true), 300);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    fetchExperts();
+  }, []);
+
+  const fetchExperts = async () => {
+    const { data, error } = await supabase
+      .from("experts")
+      .select("*")
+      .order("category", { ascending: true })
+      .order("name", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching experts:", error);
+      return;
+    }
+
+    setExperts(data || []);
+  };
+
+  const handleContactExpert = (expert: Expert) => {
+    setSelectedExpert(expert);
+    setContactDialogOpen(true);
+  };
 
   const phoneNumber = "917899828127";
 
@@ -129,6 +165,100 @@ const Experts = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+
+          {/* Experts for Your Needs Section */}
+          <div className="mt-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground text-center mb-12">
+              Experts for Your Needs
+            </h2>
+            
+            {/* Property Experts */}
+            <div className="mb-12">
+              <h3 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
+                <span>⭐</span> PROPERTY EXPERTS
+              </h3>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {experts
+                  .filter((expert) => expert.category === "Property")
+                  .map((expert) => (
+                    <Card key={expert.id} className="overflow-hidden hover:shadow-xl transition-all duration-300">
+                      <div className="aspect-square bg-muted relative">
+                        <img src={expert.image_url} alt={expert.name} className="w-full h-full object-cover" />
+                      </div>
+                      <CardContent className="p-4 space-y-3">
+                        <h4 className="font-bold text-foreground text-sm">{expert.name}</h4>
+                        <p className="text-muted-foreground text-xs line-clamp-2">{expert.description}</p>
+                        <Button
+                          onClick={() => handleContactExpert(expert)}
+                          size="sm"
+                          className="w-full bg-[#001a4d] hover:bg-[#002d7a]"
+                        >
+                          Contact Expert
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+            </div>
+
+            {/* Automobile Experts */}
+            <div className="mb-12">
+              <h3 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
+                <span>🚗</span> AUTOMOBILE EXPERTS
+              </h3>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {experts
+                  .filter((expert) => expert.category === "Automobile")
+                  .map((expert) => (
+                    <Card key={expert.id} className="overflow-hidden hover:shadow-xl transition-all duration-300">
+                      <div className="aspect-square bg-muted relative">
+                        <img src={expert.image_url} alt={expert.name} className="w-full h-full object-cover" />
+                      </div>
+                      <CardContent className="p-4 space-y-3">
+                        <h4 className="font-bold text-foreground text-sm">{expert.name}</h4>
+                        <p className="text-muted-foreground text-xs line-clamp-2">{expert.description}</p>
+                        <Button
+                          onClick={() => handleContactExpert(expert)}
+                          size="sm"
+                          className="w-full bg-[#001a4d] hover:bg-[#002d7a]"
+                        >
+                          Contact Expert
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+            </div>
+
+            {/* Jewellery Experts */}
+            <div className="mb-12">
+              <h3 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
+                <span>💍</span> JEWELLERY EXPERTS
+              </h3>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {experts
+                  .filter((expert) => expert.category === "Jewellery")
+                  .map((expert) => (
+                    <Card key={expert.id} className="overflow-hidden hover:shadow-xl transition-all duration-300">
+                      <div className="aspect-square bg-muted relative">
+                        <img src={expert.image_url} alt={expert.name} className="w-full h-full object-cover" />
+                      </div>
+                      <CardContent className="p-4 space-y-3">
+                        <h4 className="font-bold text-foreground text-sm">{expert.name}</h4>
+                        <p className="text-muted-foreground text-xs line-clamp-2">{expert.description}</p>
+                        <Button
+                          onClick={() => handleContactExpert(expert)}
+                          size="sm"
+                          className="w-full bg-[#001a4d] hover:bg-[#002d7a]"
+                        >
+                          Contact Expert
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+            </div>
           </div>
 
           {/* How Can We Help Section */}
@@ -286,6 +416,16 @@ const Experts = () => {
           </Card>
         </div>
       </section>
+
+      {/* Expert Contact Dialog */}
+      {selectedExpert && (
+        <ExpertContactDialog
+          open={contactDialogOpen}
+          onOpenChange={setContactDialogOpen}
+          expertId={selectedExpert.id}
+          expertName={selectedExpert.name}
+        />
+      )}
 
       <Footer />
     </div>
