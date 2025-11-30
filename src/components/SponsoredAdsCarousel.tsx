@@ -76,8 +76,8 @@ const SponsoredAdsCarousel = () => {
   }
 
   return (
-    <section className="py-8 mb-12 bg-muted/30">
-      <div className="container mx-auto px-4 max-w-5xl max-h-[35vh]">
+    <section className="py-6 mb-8 bg-muted/20">
+      <div className="container mx-auto px-4 max-w-4xl">
         <Carousel
           className="w-full" 
           opts={{ loop: true }}
@@ -88,46 +88,46 @@ const SponsoredAdsCarousel = () => {
             {sponsorships.map((sponsorship) => (
               <CarouselItem key={sponsorship.id}>
                 <Card 
-                  className="overflow-hidden cursor-pointer hover:shadow-xl transition-all"
+                  className="overflow-hidden cursor-pointer hover:shadow-lg transition-all"
                   onClick={() => handleClick(sponsorship)}
                 >
-                  {/* Banner Image with fixed aspect ratio */}
-                  <div className="relative aspect-[21/9] bg-muted">
+                  {/* Banner Image with compact aspect ratio */}
+                  <div className="relative aspect-[16/7] bg-muted">
                     <img
                       src={sponsorship.banner_url}
                       alt={sponsorship.business_name}
                       className="w-full h-full object-cover"
                     />
                     {/* Badge on every slide */}
-                    <Badge className="absolute top-4 left-4 z-10 bg-green-500 text-white hover:bg-green-600">
+                    <Badge className="absolute top-3 left-3 z-10 bg-green-500 text-white hover:bg-green-600 text-xs">
                       Sponsored
                     </Badge>
                   </div>
 
                   {/* Content */}
-                  <div className="p-6 space-y-4">
-                    <div className="space-y-2">
-                      <h3 className="text-2xl font-bold text-foreground">
+                  <div className="p-4 space-y-3">
+                    <div className="space-y-1">
+                      <h3 className="text-xl font-bold text-foreground">
                         {sponsorship.business_name}
                       </h3>
-                      <p className="text-muted-foreground">
+                      <p className="text-sm text-muted-foreground">
                         Premium services and exclusive offers
                       </p>
                     </div>
 
-                    <div className="flex items-center justify-between pt-2">
-                      <span className="text-sm text-muted-foreground">
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-xs text-muted-foreground">
                         by {sponsorship.business_name}
                       </span>
                       <a
                         href={sponsorship.destination_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 font-medium"
+                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 font-medium text-sm"
                         onClick={(e) => e.stopPropagation()}
                       >
                         Learn More
-                        <ArrowRight className="h-4 w-4" />
+                        <ArrowRight className="h-3.5 w-3.5" />
                       </a>
                     </div>
                   </div>
