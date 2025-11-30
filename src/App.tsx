@@ -19,6 +19,7 @@ import MyListings from "./pages/MyListings";
 import Payment from "./pages/Payment";
 import SponsorshipApply from "./pages/SponsorshipApply";
 import AdminSponsorships from "./pages/AdminSponsorships";
+import AdminExperts from "./pages/AdminExperts";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboardNew";
 import AdminUsers from "./pages/AdminUsers";
@@ -63,6 +64,7 @@ const App = () => (
           <Route path="/admin/news" element={<AdminNews />} />
           <Route path="/admin/messages" element={<AdminMessages />} />
           <Route path="/admin/sponsorships" element={<AdminSponsorships />} />
+          <Route path="/admin/experts" element={<AdminExperts />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/listing/:id" element={<ListingDetail />} />
           <Route path="/edit-listing/:id" element={<EditListing />} />
