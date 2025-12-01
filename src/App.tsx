@@ -26,6 +26,8 @@ import AdminUsers from "./pages/AdminUsers";
 import AdminListings from "./pages/AdminListings";
 import AdminFeatured from "./pages/AdminFeatured";
 import AdminPopupAds from "./pages/AdminPopupAds";
+import AdminPopupAdDetail from "./pages/AdminPopupAdDetail";
+import AdminPricingManagement from "./pages/AdminPricingManagement";
 import AdminListingDetail from "./pages/AdminListingDetail";
 import AdminNews from "./pages/AdminNews";
 import AdminMessages from "./pages/AdminMessages";
@@ -60,6 +62,8 @@ const App = () => (
           <Route path="/admin/listings" element={<AdminListings />} />
           <Route path="/admin/featured" element={<AdminFeatured />} />
           <Route path="/admin/popup-ads" element={<AdminPopupAds />} />
+          <Route path="/admin/popup-ads/:id" element={<AdminPopupAdDetail />} />
+          <Route path="/admin/pricing-management" element={<AdminPricingManagement />} />
           <Route path="/admin/listing/:id" element={<AdminListingDetail />} />
           <Route path="/admin/news" element={<AdminNews />} />
           <Route path="/admin/messages" element={<AdminMessages />} />

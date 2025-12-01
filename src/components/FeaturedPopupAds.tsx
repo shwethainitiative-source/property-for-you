@@ -110,8 +110,13 @@ const FeaturedPopupAds = () => {
   const images = currentListing.listing_images || [];
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="relative bg-background rounded-2xl shadow-2xl max-w-lg w-full mx-4 overflow-hidden animate-scale-in">
+    <div 
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) handleClose();
+      }}
+    >
+      <div className="relative bg-background rounded-2xl shadow-2xl max-w-2xl w-full mx-4 overflow-hidden animate-scale-in">
         {/* Close Button */}
         <button
           onClick={handleClose}
@@ -126,7 +131,7 @@ const FeaturedPopupAds = () => {
           Featured
         </Badge>
 
-        {/* Image */}
+        {/* Image Only - Full Click Area */}
         <div 
           className="relative aspect-video bg-muted cursor-pointer"
           onClick={() => handleListingClick(currentListing.id)}
@@ -144,46 +149,26 @@ const FeaturedPopupAds = () => {
           )}
         </div>
 
-        {/* Content */}
-        <div className="p-5 space-y-3">
-          <div 
-            className="cursor-pointer" 
-            onClick={() => handleListingClick(currentListing.id)}
-          >
-            <h3 className="text-xl font-bold text-foreground mb-1">
-              {currentListing.title}
-            </h3>
-            <p className="text-2xl font-bold text-primary mb-1">
-              ₹{currentListing.price.toLocaleString()}
-            </p>
-            <p className="text-sm text-muted-foreground mb-2">
-              {currentListing.location_city}
-            </p>
-            {currentListing.description && (
-              <p className="text-sm text-muted-foreground line-clamp-2">
-                {currentListing.description}
-              </p>
-            )}
+        {/* Indicator Dots - Only if multiple listings */}
+        {listings.length > 1 && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+            {listings.map((_, index) => (
+              <button
+                key={index}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentIndex(index);
+                }}
+                className={`h-2 rounded-full transition-all ${
+                  index === currentIndex
+                    ? "w-6 bg-white"
+                    : "w-2 bg-white/50"
+                }`}
+                aria-label={`Go to listing ${index + 1}`}
+              />
+            ))}
           </div>
-
-          {/* Indicator Dots */}
-          {listings.length > 1 && (
-            <div className="flex justify-center gap-2 pt-2">
-              {listings.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentIndex(index)}
-                  className={`h-2 rounded-full transition-all ${
-                    index === currentIndex
-                      ? "w-6 bg-primary"
-                      : "w-2 bg-muted-foreground/30"
-                  }`}
-                  aria-label={`Go to listing ${index + 1}`}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );

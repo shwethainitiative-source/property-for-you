@@ -547,7 +547,7 @@ const PostAd = () => {
 
         {/* Submit */}
         <Button onClick={handleSubmit} disabled={isSubmitting || !agreedToTerms} className={`w-full ${postingType === "popup" ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600" : postingType === "featured" ? "bg-yellow-500 hover:bg-yellow-600 text-white" : "bg-primary hover:bg-primary/90"}`} size="lg">
-          {isSubmitting ? "Processing..." : postingType === "popup" ? "Continue to Payment (₹999)" : postingType === "featured" ? "Continue to Payment (₹499)" : "Submit Free Listing"}
+          {isSubmitting ? "Processing..." : postingType === "popup" || postingType === "featured" ? "Continue to Payment" : "Submit Free Listing"}
         </Button>
       </main>
       <Footer />
