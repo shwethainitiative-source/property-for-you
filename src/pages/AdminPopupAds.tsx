@@ -266,7 +266,7 @@ const AdminPopupAds = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => navigate(`/listing/${schedule.listings.id}`)}
+                          onClick={() => navigate(`/admin/popup-ads/${schedule.id}`)}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>

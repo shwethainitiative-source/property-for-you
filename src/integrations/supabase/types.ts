@@ -342,6 +342,7 @@ export type Database = {
           payment_proof: string | null
           payment_status: string
           schedule_date: string
+          selected_dates: string[] | null
           slot_number: number
           updated_at: string
         }
@@ -354,6 +355,7 @@ export type Database = {
           payment_proof?: string | null
           payment_status?: string
           schedule_date: string
+          selected_dates?: string[] | null
           slot_number: number
           updated_at?: string
         }
@@ -366,6 +368,7 @@ export type Database = {
           payment_proof?: string | null
           payment_status?: string
           schedule_date?: string
+          selected_dates?: string[] | null
           slot_number?: number
           updated_at?: string
         }
@@ -378,6 +381,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pricing_plans: {
+        Row: {
+          created_at: string
+          display_order: number
+          duration: number
+          id: string
+          plan_type: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          duration: number
+          id?: string
+          plan_type: string
+          price: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          duration?: number
+          id?: string
+          plan_type?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
