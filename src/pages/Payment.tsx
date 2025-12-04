@@ -26,13 +26,13 @@ const Payment = () => {
   const location = useLocation();
   const { user, loading } = useAuth();
   const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
-  const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null);
+  const [selectedFeaturedPlan, setSelectedFeaturedPlan] = useState<PricingPlan | null>(null);
+  const [selectedPopupPlan, setSelectedPopupPlan] = useState<PricingPlan | null>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [screenshotPreview, setScreenshotPreview] = useState<string>("");
   const [uploading, setUploading] = useState(false);
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
-  const [isPopupPlan, setIsPopupPlan] = useState(false);
 
   useEffect(() => {
     fetchPricingPlans();
@@ -67,11 +67,22 @@ const Payment = () => {
     return 0;
   };
 
-  const handlePlanSelect = (plan: PricingPlan) => {
-    setSelectedPlan(plan);
-    setIsPopupPlan(plan.plan_type.startsWith("popup"));
-    setSelectedDates([]);
-    setShowPayment(true);
+  const handleFeaturedPlanSelect = (plan: PricingPlan) => {
+    if (selectedFeaturedPlan?.id === plan.id) {
+      setSelectedFeaturedPlan(null);
+    } else {
+      setSelectedFeaturedPlan(plan);
+    }
+  };
+
+  const handlePopupPlanSelect = (plan: PricingPlan) => {
+    if (selectedPopupPlan?.id === plan.id) {
+      setSelectedPopupPlan(null);
+      setSelectedDates([]);
+    } else {
+      setSelectedPopupPlan(plan);
+      setSelectedDates([]);
+    }
   };
 
   const handleScreenshotChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,9 +94,9 @@ const Payment = () => {
   };
 
   const handleDateSelect = (dates: Date[] | undefined) => {
-    if (!dates || !selectedPlan) return;
+    if (!dates || !selectedPopupPlan) return;
     
-    const maxDates = getMaxDatesForPlan(selectedPlan.duration);
+    const maxDates = getMaxDatesForPlan(selectedPopupPlan.duration);
     if (dates.length > maxDates) {
       toast.error(`Maximum ${maxDates} dates allowed for this plan`);
       return;
@@ -94,13 +105,28 @@ const Payment = () => {
     setSelectedDates(dates);
   };
 
+  const getTotalAmount = (): number => {
+    let total = 0;
+    if (selectedFeaturedPlan) total += selectedFeaturedPlan.price;
+    if (selectedPopupPlan) total += selectedPopupPlan.price;
+    return total;
+  };
+
+  const handleProceedToPayment = () => {
+    if (!selectedFeaturedPlan && !selectedPopupPlan) {
+      toast.error("Please select at least one plan");
+      return;
+    }
+    setShowPayment(true);
+  };
+
   const handleSubmitPayment = async () => {
     if (!screenshot) {
       toast.error("Please upload payment screenshot");
       return;
     }
 
-    if (isPopupPlan && selectedDates.length === 0) {
+    if (selectedPopupPlan && selectedDates.length === 0) {
       toast.error("Please select dates for popup promotion");
       return;
     }
@@ -171,15 +197,15 @@ const Payment = () => {
         }
       }
 
-      // If popup promotion, create popup_ad_schedules
-      if (isPopupPlan && selectedDates.length > 0) {
+      // If popup promotion selected, create popup_ad_schedules
+      if (selectedPopupPlan && selectedDates.length > 0) {
         const { error: popupError } = await supabase
           .from("popup_ad_schedules")
           .insert({
             listing_id: listing.id,
             schedule_date: selectedDates[0].toISOString().split('T')[0],
             slot_number: 1,
-            payment_amount: selectedPlan?.price || 0,
+            payment_amount: selectedPopupPlan.price,
             payment_proof: publicUrl,
             payment_status: "pending",
             admin_approved: false,
@@ -187,6 +213,14 @@ const Payment = () => {
           });
 
         if (popupError) throw popupError;
+      }
+
+      const hasPopup = selectedPopupPlan !== null;
+      const hasFeatured = selectedFeaturedPlan !== null;
+
+      if (hasPopup && hasFeatured) {
+        toast.success("Featured listing and popup promotion submitted! Admin will review your payment.");
+      } else if (hasPopup) {
         toast.success("Popup promotion request submitted! Admin will review your payment.");
       } else {
         toast.success("Payment screenshot uploaded! Your listing will be featured once admin approves.");
@@ -246,6 +280,7 @@ const Payment = () => {
 
   const featuredPlans = pricingPlans.filter(p => p.plan_type.startsWith("featured"));
   const popupPlans = pricingPlans.filter(p => p.plan_type.startsWith("popup"));
+  const totalAmount = getTotalAmount();
 
   return (
     <div className="min-h-screen bg-background">
@@ -255,7 +290,7 @@ const Payment = () => {
           <>
             <div className="text-center mb-12">
               <h1 className="text-4xl font-bold text-foreground mb-4">Choose Your Plan</h1>
-              <p className="text-muted-foreground text-lg">Select the plan that works best for your business</p>
+              <p className="text-muted-foreground text-lg">Select the plans that work best for your business</p>
             </div>
 
             {/* Featured Plans */}
@@ -266,17 +301,24 @@ const Payment = () => {
                   const Icon = getIconForPlan(plan.plan_type);
                   const benefits = getBenefitsForPlan(plan.plan_type, plan.duration);
                   const isPopular = plan.duration === 90;
+                  const isSelected = selectedFeaturedPlan?.id === plan.id;
                   
                   return (
                     <Card
                       key={plan.id}
-                      className={`relative overflow-hidden hover:shadow-xl transition-all ${
-                        isPopular ? "border-primary ring-2 ring-primary" : ""
-                      }`}
+                      className={`relative overflow-hidden hover:shadow-xl transition-all cursor-pointer ${
+                        isSelected ? "ring-2 ring-primary border-primary" : ""
+                      } ${isPopular ? "border-primary" : ""}`}
+                      onClick={() => handleFeaturedPlanSelect(plan)}
                     >
                       {isPopular && (
                         <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-sm font-semibold">
                           Most Popular
+                        </div>
+                      )}
+                      {isSelected && (
+                        <div className="absolute top-3 left-3">
+                          <CheckCircle className="h-6 w-6 text-primary fill-primary" />
                         </div>
                       )}
                       <CardHeader className="text-center pb-4">
@@ -302,12 +344,11 @@ const Payment = () => {
                         </div>
 
                         <Button
-                          onClick={() => handlePlanSelect(plan)}
                           className="w-full"
-                          variant={isPopular ? "default" : "outline"}
+                          variant={isSelected ? "default" : "outline"}
                           size="lg"
                         >
-                          Select Plan
+                          {isSelected ? "Selected" : "Select Plan"}
                         </Button>
                       </CardContent>
                     </Card>
@@ -318,22 +359,31 @@ const Payment = () => {
 
             {/* Popup Plans */}
             {popupPlans.length > 0 && (
-              <div>
+              <div className="mb-12">
                 <h2 className="text-2xl font-bold mb-6">Popup Promotion Plans</h2>
                 <div className="grid md:grid-cols-3 gap-6">
                   {popupPlans.map((plan) => {
                     const Icon = getIconForPlan(plan.plan_type);
                     const benefits = getBenefitsForPlan(plan.plan_type, plan.duration);
                     const maxDates = getMaxDatesForPlan(plan.duration);
+                    const isSelected = selectedPopupPlan?.id === plan.id;
                     
                     return (
                       <Card
                         key={plan.id}
-                        className="relative overflow-hidden hover:shadow-xl transition-all border-purple-200 dark:border-purple-800"
+                        className={`relative overflow-hidden hover:shadow-xl transition-all cursor-pointer border-purple-200 dark:border-purple-800 ${
+                          isSelected ? "ring-2 ring-purple-500" : ""
+                        }`}
+                        onClick={() => handlePopupPlanSelect(plan)}
                       >
                         <div className="absolute top-0 right-0 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 text-sm font-semibold">
                           Premium
                         </div>
+                        {isSelected && (
+                          <div className="absolute top-3 left-3">
+                            <CheckCircle className="h-6 w-6 text-purple-500 fill-purple-500" />
+                          </div>
+                        )}
                         <CardHeader className="text-center pb-4">
                           <div className="mx-auto mb-4 p-3 bg-purple-100 dark:bg-purple-900 rounded-full w-fit">
                             <Icon className="h-8 w-8 text-purple-600 dark:text-purple-400" />
@@ -361,16 +411,47 @@ const Payment = () => {
                           </div>
 
                           <Button
-                            onClick={() => handlePlanSelect(plan)}
-                            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                            className={`w-full ${isSelected ? "bg-purple-600" : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"}`}
                             size="lg"
                           >
-                            Select Plan
+                            {isSelected ? "Selected" : "Select Plan"}
                           </Button>
                         </CardContent>
                       </Card>
                     );
                   })}
+                </div>
+              </div>
+            )}
+
+            {/* Total and Proceed Button */}
+            {(selectedFeaturedPlan || selectedPopupPlan) && (
+              <div className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg p-4 z-50">
+                <div className="container mx-auto max-w-6xl flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Selected Plans:</p>
+                    <div className="flex gap-2 flex-wrap">
+                      {selectedFeaturedPlan && (
+                        <Badge variant="secondary">
+                          Featured {selectedFeaturedPlan.duration}D - ₹{selectedFeaturedPlan.price}
+                        </Badge>
+                      )}
+                      {selectedPopupPlan && (
+                        <Badge className="bg-purple-500 text-white">
+                          Popup {selectedPopupPlan.duration}D - ₹{selectedPopupPlan.price}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <p className="text-sm text-muted-foreground">Total Amount</p>
+                      <p className="text-2xl font-bold text-primary">₹{totalAmount}</p>
+                    </div>
+                    <Button size="lg" onClick={handleProceedToPayment}>
+                      Proceed to Payment
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
@@ -389,19 +470,29 @@ const Payment = () => {
               <CardHeader>
                 <CardTitle>Complete Payment</CardTitle>
                 <CardDescription>
-                  {selectedPlan?.plan_type.toUpperCase().replace(/_/g, " ")} - ₹{selectedPlan?.price} for {selectedPlan?.duration} days
+                  <div className="space-y-1">
+                    {selectedFeaturedPlan && (
+                      <div>Featured {selectedFeaturedPlan.duration}D - ₹{selectedFeaturedPlan.price}</div>
+                    )}
+                    {selectedPopupPlan && (
+                      <div>Popup {selectedPopupPlan.duration}D - ₹{selectedPopupPlan.price}</div>
+                    )}
+                    <div className="font-semibold text-foreground pt-1 border-t mt-2">
+                      Total: ₹{totalAmount}
+                    </div>
+                  </div>
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Date Selection for Popup Plans */}
-                {isPopupPlan && selectedPlan && (
+                {selectedPopupPlan && (
                   <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
                     <div className="flex items-center gap-2">
                       <CalendarIcon className="h-5 w-5 text-primary" />
                       <h3 className="font-semibold">Select Popup Dates</h3>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Select {getMaxDatesForPlan(selectedPlan.duration)} dates for your popup ads to appear
+                      Select {getMaxDatesForPlan(selectedPopupPlan.duration)} dates for your popup ads to appear
                     </p>
                     <Calendar
                       mode="multiple"
@@ -409,11 +500,21 @@ const Payment = () => {
                       onSelect={handleDateSelect}
                       disabled={(date) => date < new Date()}
                       className="rounded-md border mx-auto"
+                      modifiers={{
+                        selected: selectedDates
+                      }}
+                      modifiersStyles={{
+                        selected: {
+                          backgroundColor: 'rgb(239 68 68)',
+                          color: 'white',
+                          borderRadius: '50%'
+                        }
+                      }}
                     />
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Selected dates:</span>
                       <Badge variant="secondary">
-                        {selectedDates.length} / {getMaxDatesForPlan(selectedPlan.duration)}
+                        {selectedDates.length} / {getMaxDatesForPlan(selectedPopupPlan.duration)}
                       </Badge>
                     </div>
                   </div>
@@ -430,7 +531,7 @@ const Payment = () => {
                     Scan this QR code with your Paytm app to make payment
                   </p>
                   <p className="text-lg font-semibold mt-2">
-                    Amount: ₹{selectedPlan?.price}
+                    Amount: ₹{totalAmount}
                   </p>
                 </div>
 
@@ -480,7 +581,7 @@ const Payment = () => {
 
                 <Button
                   onClick={handleSubmitPayment}
-                  disabled={!screenshot || uploading || (isPopupPlan && selectedDates.length === 0)}
+                  disabled={!screenshot || uploading || (selectedPopupPlan && selectedDates.length === 0)}
                   className="w-full"
                   size="lg"
                 >
@@ -488,7 +589,7 @@ const Payment = () => {
                 </Button>
 
                 <p className="text-xs text-center text-muted-foreground">
-                  Your listing will be {isPopupPlan ? "activated for popup display" : "featured"} once admin approves your payment
+                  Your listing will be activated once admin approves your payment
                 </p>
               </CardContent>
             </Card>
