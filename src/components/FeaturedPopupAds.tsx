@@ -57,10 +57,12 @@ const FeaturedPopupAds = () => {
     try {
       const today = new Date().toISOString().split('T')[0];
       
+      // Fetch all approved and paid popup ads
       const { data, error } = await supabase
         .from("popup_ad_schedules")
         .select(`
           listing_id,
+          selected_dates,
           listings (
             id,
             title,
@@ -71,18 +73,23 @@ const FeaturedPopupAds = () => {
             listing_images (image_url)
           )
         `)
-        .eq("schedule_date", today)
         .eq("admin_approved", true)
         .eq("payment_status", "paid")
-        .order("slot_number", { ascending: true })
-        .limit(3);
+        .order("slot_number", { ascending: true });
 
       if (error) throw error;
 
       if (data && data.length > 0) {
-        const formattedListings = data
+        // Filter ads where today's date is in the selected_dates array
+        const todayScheduledAds = data.filter(item => {
+          const selectedDates = item.selected_dates || [];
+          return selectedDates.includes(today);
+        });
+
+        const formattedListings = todayScheduledAds
           .filter(item => item.listings)
-          .map(item => item.listings as any);
+          .map(item => item.listings as any)
+          .slice(0, 3); // Limit to 3 ads
         
         if (formattedListings.length > 0) {
           setListings(formattedListings);
