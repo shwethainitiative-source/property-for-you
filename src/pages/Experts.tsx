@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Phone, MessageCircle } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -20,6 +21,7 @@ interface Expert {
 }
 
 const Experts = () => {
+  const navigate = useNavigate();
   const [curtainOpen, setCurtainOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -47,6 +49,7 @@ const Experts = () => {
     const { data, error } = await supabase
       .from("experts")
       .select("*")
+      .eq("status", "approved")
       .order("category", { ascending: true })
       .order("name", { ascending: true });
 
@@ -169,9 +172,17 @@ const Experts = () => {
 
           {/* Experts for Your Needs Section */}
           <div className="mt-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground text-center mb-12">
-              Experts for Your Needs
-            </h2>
+            <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground text-center md:text-left">
+                Experts for Your Needs
+              </h2>
+              <Button
+                onClick={() => navigate("/user/add-expert")}
+                className="bg-[#001a4d] hover:bg-[#002d7a]"
+              >
+                Become an Expert
+              </Button>
+            </div>
             
             {/* Property Experts */}
             <div className="mb-12">
@@ -183,10 +194,12 @@ const Experts = () => {
                   .filter((expert) => expert.category === "Property")
                   .map((expert) => (
                     <Card key={expert.id} className="overflow-hidden hover:shadow-xl transition-all duration-300">
-                      <div className="aspect-square bg-muted relative">
-                        <img src={expert.image_url} alt={expert.name} className="w-full h-full object-cover" />
+                      <div className="flex justify-center pt-6">
+                        <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20">
+                          <img src={expert.image_url} alt={expert.name} className="w-full h-full object-cover" />
+                        </div>
                       </div>
-                      <CardContent className="p-4 space-y-3">
+                      <CardContent className="p-4 space-y-3 text-center">
                         <h4 className="font-bold text-foreground text-sm">{expert.name}</h4>
                         <p className="text-muted-foreground text-xs line-clamp-2">{expert.description}</p>
                         <Button
@@ -212,10 +225,12 @@ const Experts = () => {
                   .filter((expert) => expert.category === "Automobile")
                   .map((expert) => (
                     <Card key={expert.id} className="overflow-hidden hover:shadow-xl transition-all duration-300">
-                      <div className="aspect-square bg-muted relative">
-                        <img src={expert.image_url} alt={expert.name} className="w-full h-full object-cover" />
+                      <div className="flex justify-center pt-6">
+                        <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20">
+                          <img src={expert.image_url} alt={expert.name} className="w-full h-full object-cover" />
+                        </div>
                       </div>
-                      <CardContent className="p-4 space-y-3">
+                      <CardContent className="p-4 space-y-3 text-center">
                         <h4 className="font-bold text-foreground text-sm">{expert.name}</h4>
                         <p className="text-muted-foreground text-xs line-clamp-2">{expert.description}</p>
                         <Button
@@ -241,10 +256,12 @@ const Experts = () => {
                   .filter((expert) => expert.category === "Jewellery")
                   .map((expert) => (
                     <Card key={expert.id} className="overflow-hidden hover:shadow-xl transition-all duration-300">
-                      <div className="aspect-square bg-muted relative">
-                        <img src={expert.image_url} alt={expert.name} className="w-full h-full object-cover" />
+                      <div className="flex justify-center pt-6">
+                        <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20">
+                          <img src={expert.image_url} alt={expert.name} className="w-full h-full object-cover" />
+                        </div>
                       </div>
-                      <CardContent className="p-4 space-y-3">
+                      <CardContent className="p-4 space-y-3 text-center">
                         <h4 className="font-bold text-foreground text-sm">{expert.name}</h4>
                         <p className="text-muted-foreground text-xs line-clamp-2">{expert.description}</p>
                         <Button

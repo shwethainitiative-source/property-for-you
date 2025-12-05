@@ -20,6 +20,7 @@ import Payment from "./pages/Payment";
 import SponsorshipApply from "./pages/SponsorshipApply";
 import AdminSponsorships from "./pages/AdminSponsorships";
 import AdminExperts from "./pages/AdminExperts";
+import UserAddExpert from "./pages/UserAddExpert";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboardNew";
 import AdminUsers from "./pages/AdminUsers";
@@ -56,6 +57,7 @@ const App = () => (
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/sponsorship-apply" element={<SponsorshipApply />} />
+          <Route path="/user/add-expert" element={<UserAddExpert />} />
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<AdminUsers />} />
