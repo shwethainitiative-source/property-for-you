@@ -10,7 +10,8 @@ import {
   LogOut,
   Sparkles,
   GraduationCap,
-  DollarSign
+  DollarSign,
+  HelpCircle
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ const menuItems = [
   { icon: Sparkles, label: "Popup Ads", path: "/admin/popup-ads" },
   { icon: Megaphone, label: "Sponsorships", path: "/admin/sponsorships" },
   { icon: GraduationCap, label: "Experts", path: "/admin/experts" },
+  { icon: HelpCircle, label: "Expert Enquiries", path: "/admin/expert-enquiries" },
   { icon: DollarSign, label: "Pricing Plans", path: "/admin/pricing-management" },
   { icon: Newspaper, label: "News", path: "/admin/news" },
   { icon: MessageSquare, label: "Messages", path: "/admin/messages" },

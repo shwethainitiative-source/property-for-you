@@ -20,7 +20,9 @@ import Payment from "./pages/Payment";
 import SponsorshipApply from "./pages/SponsorshipApply";
 import AdminSponsorships from "./pages/AdminSponsorships";
 import AdminExperts from "./pages/AdminExperts";
+import AdminExpertEnquiries from "./pages/AdminExpertEnquiries";
 import UserAddExpert from "./pages/UserAddExpert";
+import ExpertDetail from "./pages/ExpertDetail";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboardNew";
 import AdminUsers from "./pages/AdminUsers";
@@ -51,6 +53,7 @@ const App = () => (
           <Route path="/automobiles" element={<Automobiles />} />
           <Route path="/jewellery" element={<Jewellery />} />
           <Route path="/experts" element={<Experts />} />
+          <Route path="/experts/:id" element={<ExpertDetail />} />
           <Route path="/news" element={<News />} />
           <Route path="/news/:id" element={<NewsDetail />} />
           <Route path="/my-listings" element={<MyListings />} />
@@ -71,6 +74,7 @@ const App = () => (
           <Route path="/admin/messages" element={<AdminMessages />} />
           <Route path="/admin/sponsorships" element={<AdminSponsorships />} />
           <Route path="/admin/experts" element={<AdminExperts />} />
+          <Route path="/admin/expert-enquiries" element={<AdminExpertEnquiries />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/listing/:id" element={<ListingDetail />} />
           <Route path="/edit-listing/:id" element={<EditListing />} />
