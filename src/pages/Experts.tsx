@@ -193,7 +193,11 @@ const Experts = () => {
                 {experts
                   .filter((expert) => expert.category === "Property")
                   .map((expert) => (
-                    <Card key={expert.id} className="overflow-hidden hover:shadow-xl transition-all duration-300">
+                    <Card 
+                      key={expert.id} 
+                      className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer"
+                      onClick={() => navigate(`/experts/${expert.id}`)}
+                    >
                       <div className="flex justify-center pt-6">
                         <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20">
                           <img src={expert.image_url} alt={expert.name} className="w-full h-full object-cover" />
@@ -203,7 +207,10 @@ const Experts = () => {
                         <h4 className="font-bold text-foreground text-sm">{expert.name}</h4>
                         <p className="text-muted-foreground text-xs line-clamp-2">{expert.description}</p>
                         <Button
-                          onClick={() => handleContactExpert(expert)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleContactExpert(expert);
+                          }}
                           size="sm"
                           className="w-full bg-[#001a4d] hover:bg-[#002d7a]"
                         >
@@ -224,7 +231,11 @@ const Experts = () => {
                 {experts
                   .filter((expert) => expert.category === "Automobile")
                   .map((expert) => (
-                    <Card key={expert.id} className="overflow-hidden hover:shadow-xl transition-all duration-300">
+                    <Card 
+                      key={expert.id} 
+                      className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer"
+                      onClick={() => navigate(`/experts/${expert.id}`)}
+                    >
                       <div className="flex justify-center pt-6">
                         <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20">
                           <img src={expert.image_url} alt={expert.name} className="w-full h-full object-cover" />
@@ -234,7 +245,10 @@ const Experts = () => {
                         <h4 className="font-bold text-foreground text-sm">{expert.name}</h4>
                         <p className="text-muted-foreground text-xs line-clamp-2">{expert.description}</p>
                         <Button
-                          onClick={() => handleContactExpert(expert)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleContactExpert(expert);
+                          }}
                           size="sm"
                           className="w-full bg-[#001a4d] hover:bg-[#002d7a]"
                         >
@@ -255,7 +269,11 @@ const Experts = () => {
                 {experts
                   .filter((expert) => expert.category === "Jewellery")
                   .map((expert) => (
-                    <Card key={expert.id} className="overflow-hidden hover:shadow-xl transition-all duration-300">
+                    <Card 
+                      key={expert.id} 
+                      className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer"
+                      onClick={() => navigate(`/experts/${expert.id}`)}
+                    >
                       <div className="flex justify-center pt-6">
                         <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20">
                           <img src={expert.image_url} alt={expert.name} className="w-full h-full object-cover" />
@@ -265,7 +283,10 @@ const Experts = () => {
                         <h4 className="font-bold text-foreground text-sm">{expert.name}</h4>
                         <p className="text-muted-foreground text-xs line-clamp-2">{expert.description}</p>
                         <Button
-                          onClick={() => handleContactExpert(expert)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleContactExpert(expert);
+                          }}
                           size="sm"
                           className="w-full bg-[#001a4d] hover:bg-[#002d7a]"
                         >
