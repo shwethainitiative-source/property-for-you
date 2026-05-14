@@ -9,10 +9,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Search, X } from "lucide-react";
-<<<<<<< HEAD
 import { statesAndDistricts } from "@/data/india-locations";
-=======
->>>>>>> b92835de31a0a492b67041dfc5fe45978d9f78b8
 import {
   Sheet,
   SheetContent,
@@ -58,7 +55,6 @@ export const FilterDrawer = ({
             />
           </div>
 
-<<<<<<< HEAD
           {/* Location Filters */}
           <div className="space-y-4 pt-2">
             <div>
@@ -138,17 +134,6 @@ export const FilterDrawer = ({
                 </SelectContent>
               </Select>
             </div>
-=======
-          {/* Location */}
-          <div>
-            <Label htmlFor="location">Location</Label>
-            <Input
-              id="location"
-              placeholder="City or locality"
-              value={filters.location || ""}
-              onChange={(e) => onFilterChange("location", e.target.value)}
-            />
->>>>>>> b92835de31a0a492b67041dfc5fe45978d9f78b8
           </div>
 
           {/* Price Range */}

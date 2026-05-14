@@ -12,10 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { MapPin, Filter } from "lucide-react";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import SponsoredAdsSidebar from "@/components/SponsoredAdsSidebar";
-<<<<<<< HEAD
 import { statesAndDistricts } from "@/data/india-locations";
-=======
->>>>>>> b92835de31a0a492b67041dfc5fe45978d9f78b8
 import {
   Pagination,
   PaginationContent,
@@ -50,13 +47,9 @@ const Automobiles = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
     search: "",
-<<<<<<< HEAD
     state: "",
     district: "",
     taluk: "",
-=======
-    location: "",
->>>>>>> b92835de31a0a492b67041dfc5fe45978d9f78b8
     minPrice: "",
     maxPrice: "",
     brand: "",
@@ -117,7 +110,6 @@ const Automobiles = () => {
       );
     }
 
-<<<<<<< HEAD
     if (filters.state && filters.state !== "all") {
       const stateDistricts = statesAndDistricts.find(s => s.state === filters.state)?.districts || [];
       filtered = filtered.filter(listing => 
@@ -135,17 +127,6 @@ const Automobiles = () => {
       filtered = filtered.filter(
         (listing) => 
           listing.location_locality?.toLowerCase() === filters.taluk.toLowerCase()
-=======
-    if (filters.location) {
-      filtered = filtered.filter(
-        (listing) =>
-          listing.location_city
-            .toLowerCase()
-            .includes(filters.location.toLowerCase()) ||
-          listing.location_locality
-            ?.toLowerCase()
-            .includes(filters.location.toLowerCase())
->>>>>>> b92835de31a0a492b67041dfc5fe45978d9f78b8
       );
     }
 
@@ -210,13 +191,9 @@ const Automobiles = () => {
   const handleReset = () => {
     setFilters({
       search: "",
-<<<<<<< HEAD
       state: "",
       district: "",
       taluk: "",
-=======
-      location: "",
->>>>>>> b92835de31a0a492b67041dfc5fe45978d9f78b8
       minPrice: "",
       maxPrice: "",
       brand: "",
