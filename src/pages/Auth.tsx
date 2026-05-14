@@ -103,8 +103,12 @@ const Auth = () => {
       toast.success("OTP sent to your email!");
       setSignupStep("verify-otp");
     } catch (error: any) {
+<<<<<<< HEAD
       console.error("Error sending signup OTP:", error);
       toast.error(error.message || "Failed to send OTP. Please check if the email service is configured.");
+=======
+      toast.error(error.message || "Failed to send OTP");
+>>>>>>> b92835de31a0a492b67041dfc5fe45978d9f78b8
     } finally {
       setLoading(false);
     }
@@ -193,8 +197,12 @@ const Auth = () => {
       toast.success("OTP sent to your email!");
       setForgotPasswordStep("verify-otp");
     } catch (error: any) {
+<<<<<<< HEAD
       console.error("Error sending reset OTP:", error);
       toast.error(error.message || "Failed to send OTP. Please check if the email service is configured.");
+=======
+      toast.error(error.message || "Failed to send OTP");
+>>>>>>> b92835de31a0a492b67041dfc5fe45978d9f78b8
     } finally {
       setLoading(false);
     }
