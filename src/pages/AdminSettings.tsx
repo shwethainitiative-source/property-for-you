@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 interface SiteSettings {
   id: string;
@@ -148,17 +149,15 @@ const AdminSettings = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="site_logo">Site Logo URL</Label>
-                <Input
-                  id="site_logo"
-                  type="url"
-                  value={settings?.site_logo || ""}
-                  onChange={(e) =>
+                <ImageUpload
+                  bucket="site-settings"
+                  defaultValue={settings?.site_logo || ""}
+                  onUploadComplete={(url) =>
                     setSettings(
-                      settings ? { ...settings, site_logo: e.target.value } : null
+                      settings ? { ...settings, site_logo: url } : null
                     )
                   }
-                  placeholder="https://example.com/logo.png"
+                  label="Site Logo"
                 />
               </div>
 

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Edit, Trash2, Eye } from "lucide-react";
+import { Edit, Trash2, Eye, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import AdminLayout from "@/components/admin/AdminLayout";
 
@@ -143,11 +143,17 @@ const AdminListings = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Listings Management</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage all property listings
-          </p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Listings Management</h1>
+            <p className="text-muted-foreground mt-1">
+              Manage all property listings
+            </p>
+          </div>
+          <Button onClick={() => navigate("/post-ad")}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add New Listing
+          </Button>
         </div>
 
         <Card>

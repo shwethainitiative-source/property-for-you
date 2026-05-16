@@ -33,6 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Pencil, Trash2, Plus, Check, X } from "lucide-react";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 interface Expert {
   id: string;
@@ -429,13 +430,11 @@ const AdminExperts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="image_url">Image URL</Label>
-                <Input
-                  id="image_url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="https://example.com/image.jpg"
-                  required
+                <ImageUpload
+                  bucket="expert-images"
+                  defaultValue={formData.image_url}
+                  onUploadComplete={(url) => setFormData({ ...formData, image_url: url })}
+                  label="Expert Profile Image"
                 />
               </div>
               <div className="flex justify-end gap-2">

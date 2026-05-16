@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { format } from "date-fns";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 interface NewsArticle {
   id: string;
@@ -264,13 +265,11 @@ const AdminNews = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="image_url">Image URL (Optional)</Label>
-                  <Input
-                    id="image_url"
-                    type="url"
-                    value={formData.image_url}
-                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                    placeholder="https://example.com/image.jpg"
+                  <ImageUpload
+                    bucket="news-images"
+                    defaultValue={formData.image_url}
+                    onUploadComplete={(url) => setFormData({ ...formData, image_url: url })}
+                    label="Article Image"
                   />
                 </div>
 

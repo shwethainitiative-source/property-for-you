@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Phone, Mail, MapPin, Calendar } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { useToast } from "@/hooks/use-toast";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 interface ListingDetail {
   id: string;
@@ -68,6 +69,46 @@ const AdminListingDetail = () => {
     }
   };
 
+  const handleNewImageUpload = async (url: string) => {
+    if (!url || !id) return;
+
+    try {
+      const { data: currentImages } = await supabase
+        .from("listing_images")
+        .select("display_order")
+        .eq("listing_id", id)
+        .order("display_order", { ascending: false })
+        .limit(1);
+
+      const nextOrder = currentImages && currentImages.length > 0 
+        ? currentImages[0].display_order + 1 
+        : 0;
+
+      const { error } = await supabase
+        .from("listing_images")
+        .insert({
+          listing_id: id,
+          image_url: url,
+          display_order: nextOrder
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Image added to listing",
+      });
+      fetchListing();
+    } catch (error) {
+      console.error("Error adding image:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add image to listing",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <AdminLayout>
@@ -110,18 +151,29 @@ const AdminListingDetail = () => {
         </div>
 
         {/* Images */}
-        {listing.listing_images.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {listing.listing_images.map((img, idx) => (
-              <img
-                key={idx}
-                src={img.image_url}
-                alt={`${listing.title} - ${idx + 1}`}
-                className="w-full h-48 object-cover rounded-lg shadow-md"
-              />
-            ))}
-          </div>
-        )}
+        <Card>
+          <CardContent className="p-6">
+            <h3 className="font-semibold mb-4 text-lg">Listing Images</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              {listing.listing_images.map((img, idx) => (
+                <div key={idx} className="relative group">
+                  <img
+                    src={img.image_url}
+                    alt={`${listing.title} - ${idx + 1}`}
+                    className="w-full h-32 object-cover rounded-lg shadow-sm"
+                  />
+                </div>
+              ))}
+              <div className="border-2 border-dashed rounded-lg flex items-center justify-center bg-muted/20 hover:bg-muted/50 transition-colors h-32">
+                 <ImageUpload 
+                    bucket="listing-images"
+                    onUploadComplete={handleNewImageUpload}
+                    label="Add Image"
+                 />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Main Details */}
         <Card>
