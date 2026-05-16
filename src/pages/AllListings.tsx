@@ -8,9 +8,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Filter } from "lucide-react";
-import { FavoriteButton } from "@/components/FavoriteButton";
 import { statesAndDistricts } from "@/data/india-locations";
+import { ListingCard } from "@/components/ListingCard";
 import {
   Pagination,
   PaginationContent,
@@ -175,14 +174,14 @@ const AllListings = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex justify-between items-center">
+        <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">All Listings</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">All Listings</h1>
+            <p className="text-muted-foreground text-sm sm:text-base">
               Browse {filteredListings.length} listings
             </p>
           </div>
-          <Button onClick={() => setFilterOpen(true)} variant="outline">
+          <Button onClick={() => setFilterOpen(true)} variant="outline" className="w-full sm:w-auto">
             <Filter className="h-4 w-4 mr-2" />
             Filters
           </Button>
@@ -210,52 +209,9 @@ const AllListings = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {currentListings.map((listing) => (
-                <Card
-                  key={listing.id}
-                  className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => navigate(`/listing/${listing.id}`)}
-                >
-                  <div className="aspect-video bg-muted relative">
-                    {listing.listing_images?.[0] ? (
-                      <img
-                        src={listing.listing_images[0].image_url}
-                        alt={listing.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                        No image
-                      </div>
-                    )}
-                    {listing.is_featured && (
-                      <Badge className="absolute top-2 left-2 bg-accent text-accent-foreground">
-                        Featured
-                      </Badge>
-                    )}
-                    <Badge className="absolute top-2 right-2 bg-primary">
-                      {listing.categories.name}
-                    </Badge>
-                    <FavoriteButton listingId={listing.id} />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-lg mb-2 line-clamp-1">
-                      {listing.title}
-                    </h3>
-                    <p className="text-xl font-bold text-primary mb-2">
-                      ₹{listing.price.toLocaleString()}
-                    </p>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      <span className="line-clamp-1">
-                        {listing.location_locality
-                          ? `${listing.location_locality}, ${listing.location_city}`
-                          : listing.location_city}
-                      </span>
-                    </div>
-                  </div>
-                </Card>
+                <ListingCard key={listing.id} listing={listing} />
               ))}
             </div>
 

@@ -104,7 +104,6 @@ const AdminFeatured = () => {
           profiles(name, email)
         `)
         .eq("status", "active")
-        .not("payment_proof", "is", null)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
