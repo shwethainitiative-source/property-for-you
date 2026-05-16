@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Home, Eye, Plus, Loader2 } from "lucide-react";
+import { Eye, Plus, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import AdminLayout from "@/components/admin/AdminLayout";
 import ImageUpload from "@/components/admin/ImageUpload";
 import {
   Dialog,
@@ -199,36 +200,12 @@ const AdminFeatured = () => {
     navigate("/admin");
   };
 
-  if (!isAdmin || loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background">
-      <div className="border-b">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-foreground">Featured Listings</h1>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate("/admin/dashboard")}>
-              <Home className="h-4 w-4 mr-2" />
-              Dashboard
-            </Button>
-            <Button variant="outline" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <main className="container mx-auto px-4 py-8 space-y-6">
+    <AdminLayout>
+      <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-3xl font-bold">Featured Management</h2>
+            <h1 className="text-3xl font-bold text-foreground">Featured Management</h1>
             <p className="text-muted-foreground mt-1">Boost active listings to featured status</p>
           </div>
           <Dialog onOpenChange={(open) => { if(open) fetchAllListings(); }}>
@@ -271,6 +248,7 @@ const AdminFeatured = () => {
             </DialogContent>
           </Dialog>
         </div>
+
         <Card>
           <CardHeader>
             <CardTitle>Paid Featured Listings</CardTitle>
@@ -333,11 +311,17 @@ const AdminFeatured = () => {
                   </div>
                 </div>
               ))}
+              
+              {requests.length === 0 && (
+                <div className="py-12 text-center text-muted-foreground">
+                  No featured requests found
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
-      </main>
-    </div>
+      </div>
+    </AdminLayout>
   );
 };
 
