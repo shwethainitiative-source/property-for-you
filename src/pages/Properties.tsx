@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { ListingSort } from "@/components/ListingSort";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { statesAndDistricts } from "@/data/india-locations";
+import { supabase } from "@/integrations/supabase/client";
+import { MapPin, Filter } from "lucide-react";
 import { ListingCard } from "@/components/ListingCard";
 import SponsoredAdsSidebar from "@/components/SponsoredAdsSidebar";
 import {
