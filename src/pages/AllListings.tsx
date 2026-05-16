@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { statesAndDistricts } from "@/data/india-locations";
 import { ListingCard } from "@/components/ListingCard";
+import { Filter, X } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -174,17 +175,38 @@ const AllListings = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="mb-8 space-y-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">All Listings</h1>
             <p className="text-muted-foreground text-sm sm:text-base">
               Browse {filteredListings.length} listings
             </p>
           </div>
-          <Button onClick={() => setFilterOpen(true)} variant="outline" className="w-full sm:w-auto">
-            <Filter className="h-4 w-4 mr-2" />
-            Filters
-          </Button>
+          
+          <div className="flex gap-2 sm:gap-4">
+            <Button onClick={() => setFilterOpen(true)} variant="outline" className="shrink-0">
+              <Filter className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Filters</span>
+            </Button>
+            <div className="flex-1 flex gap-2">
+              <Input
+                placeholder="Search all categories..."
+                value={filters.search}
+                onChange={(e) => handleFilterChange("search", e.target.value)}
+                className="w-full"
+              />
+              {Object.values(filters).some(v => v && v !== "all") && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={handleReset}
+                  className="shrink-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
 
         <FilterDrawer

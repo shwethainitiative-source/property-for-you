@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { Filter, MapPin } from "lucide-react";
+import { Filter, MapPin, X } from "lucide-react";
 import { statesAndDistricts } from "@/data/india-locations";
 import { ListingCard } from "@/components/ListingCard";
 import SponsoredAdsSidebar from "@/components/SponsoredAdsSidebar";
@@ -85,7 +85,8 @@ const Jewellery = () => {
           is_featured,
           attributes,
           created_at,
-          listing_images(image_url)
+          listing_images(image_url),
+          categories(name)
         `)
         .eq("category_id", categories.id)
         .eq("status", "active")
@@ -216,13 +217,24 @@ const Jewellery = () => {
                 <Filter className="h-4 w-4 mr-2" />
                 Filters
               </Button>
-              <div className="flex-1">
+              <div className="flex-1 flex gap-2">
                 <Input
                   placeholder="Search jewellery..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  value={filters.search}
+                  onChange={(e) => handleFilterChange("search", e.target.value)}
                   className="w-full"
                 />
+                {Object.values(filters).some(v => v && v !== "all") && (
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={handleReset}
+                    className="shrink-0"
+                    title="Clear all filters"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </div>
 

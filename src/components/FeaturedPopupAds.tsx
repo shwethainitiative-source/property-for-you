@@ -26,7 +26,11 @@ const FeaturedPopupAds = () => {
     const lastShown = localStorage.getItem("featuredPopupLastShown");
     const today = new Date().toDateString();
     
-    if (lastShown !== today) {
+    // Allow admin to force preview via query param
+    const urlParams = new URLSearchParams(window.location.search);
+    const isPreview = urlParams.get('preview_popup') === 'true';
+    
+    if (lastShown !== today || isPreview) {
       fetchScheduledPopupAds();
     }
   }, []);

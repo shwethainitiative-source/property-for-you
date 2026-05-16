@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Loader2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { FavoriteButton } from "@/components/FavoriteButton";
+import { ListingCard } from "@/components/ListingCard";
 
 interface Listing {
   id: string;
@@ -122,48 +120,9 @@ const FeaturedListings = () => {
               </Link>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {listings.map((listing) => (
-                <Link key={listing.id} to={`/listing/${listing.id}`}>
-                  <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                    <div className="relative aspect-video bg-muted">
-                      {listing.listing_images && listing.listing_images.length > 0 ? (
-                        <img
-                          src={listing.listing_images[0].image_url}
-                          alt={listing.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                          No Image
-                        </div>
-                      )}
-                      <Badge variant="featured" className="absolute top-2 left-2">
-                        Featured
-                      </Badge>
-                      <FavoriteButton listingId={listing.id} />
-                    </div>
-                    <CardContent className="p-4 space-y-2">
-                      <h3 className="font-semibold text-foreground line-clamp-1">
-                        {listing.title}
-                      </h3>
-                      <p className="text-xl font-bold text-primary">
-                        ₹{listing.price.toLocaleString()}
-                      </p>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <MapPin className="h-4 w-4" />
-                        <span className="line-clamp-1">
-                          {listing.location_locality
-                            ? `${listing.location_locality}, ${listing.location_city}`
-                            : listing.location_city}
-                        </span>
-                      </div>
-                      <Badge variant="secondary" className="text-xs">
-                        {listing.categories?.name || 'Uncategorized'}
-                      </Badge>
-                    </CardContent>
-                  </Card>
-                </Link>
+                <ListingCard key={listing.id} listing={listing as any} />
               ))}
             </div>
           )}

@@ -83,7 +83,8 @@ const Properties = () => {
           is_featured,
           attributes,
           created_at,
-          listing_images(image_url)
+          listing_images(image_url),
+          categories(name)
         `)
         .eq("category_id", categories.id)
         .eq("status", "active")
@@ -212,13 +213,24 @@ const Properties = () => {
                 <Filter className="h-4 w-4 mr-2" />
                 Filters
               </Button>
-              <div className="flex-1">
+              <div className="flex-1 flex gap-2">
                 <Input
                   placeholder="Search properties..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  value={filters.search}
+                  onChange={(e) => handleFilterChange("search", e.target.value)}
                   className="w-full"
                 />
+                {Object.values(filters).some(v => v && v !== "all") && (
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={handleReset}
+                    className="shrink-0"
+                    title="Clear all filters"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </div>
 
