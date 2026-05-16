@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import AdminLayout from "@/components/admin/AdminLayout";
+import ImageUpload from "@/components/admin/ImageUpload";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -112,6 +113,23 @@ const AdminSponsorships = () => {
     } catch (error: any) {
       console.error("Error updating sponsorship:", error);
       toast.error("Failed to update sponsorship");
+    }
+  };
+
+  const handleFileUpload = async (id: string, url: string, column: 'banner_url' | 'payment_proof') => {
+    if (!url) return;
+    try {
+      const { error } = await supabase
+        .from('sponsorships')
+        .update({ [column]: url })
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success(`${column === 'banner_url' ? 'Banner' : 'Payment proof'} updated`);
+      fetchSponsorships();
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast.error("Failed to update file");
     }
   };
 
@@ -229,6 +247,23 @@ const AdminSponsorships = () => {
                             </p>
                           </div>
 
+                          <div className="space-y-2">
+                             <p className="text-sm font-medium mb-1">Payment Proof</p>
+                             {(sponsorship as any).payment_proof ? (
+                                <a href={(sponsorship as any).payment_proof} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
+                                   View Payment Proof
+                                </a>
+                             ) : (
+                                <div className="w-32">
+                                  <ImageUpload 
+                                    bucket="sponsorship-banners"
+                                    onUploadComplete={(url) => handleFileUpload(sponsorship.id, url, 'payment_proof')}
+                                    label="Upload Proof"
+                                  />
+                                </div>
+                             )}
+                          </div>
+
                           {sponsorship.start_date && sponsorship.end_date && (
                             <div>
                               <p className="text-sm font-medium mb-1">Active Period</p>
@@ -260,8 +295,15 @@ const AdminSponsorships = () => {
                             <img
                               src={sponsorship.banner_url}
                               alt="Banner"
-                              className="w-full rounded-lg border"
+                              className="w-full rounded-lg border mb-2"
                             />
+                            <div className="w-full">
+                               <ImageUpload 
+                                  bucket="sponsorship-banners"
+                                  onUploadComplete={(url) => handleFileUpload(sponsorship.id, url, 'banner_url')}
+                                  label="Change Banner"
+                               />
+                            </div>
                           </div>
 
                           {sponsorship.status === 'pending' && (

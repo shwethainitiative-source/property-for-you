@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Calendar, CheckCircle, XCircle, Eye, DollarSign } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import AdminLayout from "@/components/admin/AdminLayout";
+import ImageUpload from "@/components/admin/ImageUpload";
 import {
   Dialog,
   DialogContent,
@@ -167,6 +168,23 @@ const AdminPopupAds = () => {
     }
   };
 
+  const handleProofUpload = async (scheduleId: string, url: string) => {
+    if (!url) return;
+    try {
+      const { error } = await supabase
+        .from("popup_ad_schedules")
+        .update({ payment_proof: url })
+        .eq("id", scheduleId);
+
+      if (error) throw error;
+      toast({ title: "Success", description: "Payment proof uploaded" });
+      fetchSchedules();
+    } catch (error) {
+      console.error("Error uploading proof:", error);
+      toast({ title: "Error", description: "Failed to upload proof", variant: "destructive" });
+    }
+  };
+
   const groupByDate = (schedules: PopupSchedule[]) => {
     const grouped: Record<string, PopupSchedule[]> = {};
     schedules.forEach((schedule) => {
@@ -251,7 +269,7 @@ const AdminPopupAds = () => {
                         <p className="text-xs text-muted-foreground mt-1">
                           Popup Ad Fee: ₹{schedule.payment_amount.toLocaleString()}
                         </p>
-                        {schedule.payment_proof && (
+                        {schedule.payment_proof ? (
                           <a
                             href={schedule.payment_proof}
                             target="_blank"
@@ -260,6 +278,14 @@ const AdminPopupAds = () => {
                           >
                             View Payment Proof
                           </a>
+                        ) : (
+                          <div className="mt-2 w-32">
+                            <ImageUpload 
+                              bucket="popup-ads"
+                              onUploadComplete={(url) => handleProofUpload(schedule.id, url)}
+                              label="Upload Proof"
+                            />
+                          </div>
                         )}
                       </div>
                       <div className="flex gap-2">

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { LogOut, Home, Eye } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 interface FeaturedRequest {
   id: string;
@@ -125,6 +126,23 @@ const AdminFeatured = () => {
     }
   };
 
+  const handleProofUpload = async (listingId: string, url: string) => {
+    if (!url) return;
+    try {
+      const { error } = await supabase
+        .from("listings")
+        .update({ payment_proof: url })
+        .eq("id", listingId);
+
+      if (error) throw error;
+      toast({ title: "Success", description: "Payment proof uploaded" });
+      fetchRequests();
+    } catch (error) {
+      console.error("Error uploading proof:", error);
+      toast({ title: "Error", description: "Failed to upload proof", variant: "destructive" });
+    }
+  };
+
   const handleLogout = async () => {
     await signOut();
     navigate("/admin");
@@ -182,7 +200,7 @@ const AdminFeatured = () => {
                     <p className="text-xs text-muted-foreground">
                       {new Date(request.created_at).toLocaleDateString()}
                     </p>
-                    {request.payment_proof && (
+                    {request.payment_proof ? (
                       <a
                         href={request.payment_proof}
                         target="_blank"
@@ -191,6 +209,14 @@ const AdminFeatured = () => {
                       >
                         View Payment Proof
                       </a>
+                    ) : (
+                      <div className="mt-2 w-32">
+                        <ImageUpload 
+                          bucket="listing-images"
+                          onUploadComplete={(url) => handleProofUpload(request.id, url)}
+                          label="Upload Proof"
+                        />
+                      </div>
                     )}
                   </div>
                   <div className="flex gap-2">
