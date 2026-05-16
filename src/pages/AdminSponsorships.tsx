@@ -9,10 +9,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Loader2, ExternalLink, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Loader2, ExternalLink, CheckCircle, XCircle, Clock, Plus } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface Sponsorship {
   id: string;
@@ -40,6 +46,19 @@ const AdminSponsorships = () => {
   const [selectedSponsorship, setSelectedSponsorship] = useState<Sponsorship | null>(null);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+  
+  const [newSponsorship, setNewSponsorship] = useState({
+    businessName: "",
+    contactPerson: "",
+    email: "",
+    phone: "",
+    destinationUrl: "",
+    duration: "7",
+    price: "199",
+    bannerUrl: "",
+    proofUrl: "",
+  });
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -133,6 +152,46 @@ const AdminSponsorships = () => {
     }
   };
 
+  const handleCreateSponsorship = async () => {
+    if (!newSponsorship.businessName || !newSponsorship.bannerUrl) {
+      toast.error("Please fill all required fields and upload a banner");
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { error } = await supabase
+        .from('sponsorships')
+        .insert({
+          user_id: user.id,
+          business_name: newSponsorship.businessName,
+          contact_person: newSponsorship.contactPerson,
+          email: newSponsorship.email,
+          phone: newSponsorship.phone,
+          banner_url: newSponsorship.bannerUrl,
+          payment_proof: newSponsorship.proofUrl,
+          destination_url: newSponsorship.destinationUrl,
+          duration: parseInt(newSponsorship.duration),
+          price: parseFloat(newSponsorship.price),
+          status: 'approved',
+          payment_status: 'completed',
+          start_date: new Date().toISOString(),
+          end_date: new Date(Date.now() + parseInt(newSponsorship.duration) * 24 * 60 * 60 * 1000).toISOString()
+        });
+
+      if (error) throw error;
+      toast.success("Sponsorship created successfully");
+      fetchSponsorships();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to create sponsorship");
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   const handleApprove = () => {
     if (!selectedSponsorship || !startDate || !endDate) {
       toast.error("Please set both start and end dates");
@@ -184,9 +243,67 @@ const AdminSponsorships = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Sponsorship Management</h1>
-          <p className="text-muted-foreground mt-1">Manage and review sponsorship applications</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Sponsorship Management</h1>
+            <p className="text-muted-foreground mt-1">Manage and review sponsorship applications</p>
+          </div>
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Add New Sponsorship
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Create Manual Sponsorship</DialogTitle>
+                <DialogDescription>Manually add a business sponsorship banner</DialogDescription>
+              </DialogHeader>
+              <div className="grid md:grid-cols-2 gap-4 py-4">
+                <div className="space-y-2">
+                  <Label>Business Name *</Label>
+                  <Input value={newSponsorship.businessName} onChange={(e) => setNewSponsorship({...newSponsorship, businessName: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Contact Person</Label>
+                  <Input value={newSponsorship.contactPerson} onChange={(e) => setNewSponsorship({...newSponsorship, contactPerson: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Email</Label>
+                  <Input value={newSponsorship.email} onChange={(e) => setNewSponsorship({...newSponsorship, email: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Phone</Label>
+                  <Input value={newSponsorship.phone} onChange={(e) => setNewSponsorship({...newSponsorship, phone: e.target.value})} />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label>Destination URL *</Label>
+                  <Input value={newSponsorship.destinationUrl} onChange={(e) => setNewSponsorship({...newSponsorship, destinationUrl: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                   <ImageUpload 
+                      bucket="sponsorship-banners"
+                      onUploadComplete={(url) => setNewSponsorship({...newSponsorship, bannerUrl: url})}
+                      label="Ad Banner *"
+                   />
+                </div>
+                <div className="space-y-2">
+                   <ImageUpload 
+                      bucket="sponsorship-banners"
+                      onUploadComplete={(url) => setNewSponsorship({...newSponsorship, proofUrl: url})}
+                      label="Payment Proof"
+                   />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button onClick={handleCreateSponsorship} disabled={isCreating}>
+                  {isCreating ? <Loader2 className="animate-spin mr-2" /> : "Create Sponsorship"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
 
         <Tabs defaultValue="pending" className="space-y-6">

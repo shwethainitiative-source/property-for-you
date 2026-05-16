@@ -5,9 +5,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Home, Eye } from "lucide-react";
+import { LogOut, Home, Eye, Plus, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import ImageUpload from "@/components/admin/ImageUpload";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 interface FeaturedRequest {
   id: string;
@@ -26,6 +38,13 @@ const AdminFeatured = () => {
   const [requests, setRequests] = useState<FeaturedRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [allListings, setAllListings] = useState<{ id: string; title: string }[]>([]);
+  const [isCreating, setIsCreating] = useState(false);
+  
+  const [newFeatured, setNewFeatured] = useState({
+    listingId: "",
+    proof: ""
+  });
 
   useEffect(() => {
     if (!authLoading) {
@@ -143,6 +162,38 @@ const AdminFeatured = () => {
     }
   };
 
+  const fetchAllListings = async () => {
+    const { data } = await supabase.from('listings').select('id, title').eq('is_featured', false).eq('status', 'active');
+    if (data) setAllListings(data);
+  };
+
+  const handleCreateFeatured = async () => {
+    if (!newFeatured.listingId) {
+      toast({ title: "Error", description: "Please select a listing", variant: "destructive" });
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      const { error } = await supabase
+        .from('listings')
+        .update({ 
+          is_featured: true,
+          payment_proof: newFeatured.proof 
+        })
+        .eq('id', newFeatured.listingId);
+
+      if (error) throw error;
+      toast({ title: "Success", description: "Listing featured successfully" });
+      setNewFeatured({ listingId: "", proof: "" });
+      fetchRequests();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Failed to feature listing", variant: "destructive" });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   const handleLogout = async () => {
     await signOut();
     navigate("/admin");
@@ -174,7 +225,52 @@ const AdminFeatured = () => {
         </div>
       </div>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-3xl font-bold">Featured Management</h2>
+            <p className="text-muted-foreground mt-1">Boost active listings to featured status</p>
+          </div>
+          <Dialog onOpenChange={(open) => { if(open) fetchAllListings(); }}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Featured Listing
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Manually Feature a Listing</DialogTitle>
+                <DialogDescription>Select an active listing to boost as featured</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label>Select Listing *</Label>
+                  <Select value={newFeatured.listingId} onValueChange={(val) => setNewFeatured({...newFeatured, listingId: val})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Search listing..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allListings.map(l => <SelectItem key={l.id} value={l.id}>{l.title}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                   <ImageUpload 
+                      bucket="listing-images"
+                      onUploadComplete={(url) => setNewFeatured({...newFeatured, proof: url})}
+                      label="Payment Proof (Optional)"
+                   />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button onClick={handleCreateFeatured} disabled={isCreating}>
+                  {isCreating ? <Loader2 className="animate-spin mr-2" /> : "Boost to Featured"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
         <Card>
           <CardHeader>
             <CardTitle>Paid Featured Listings</CardTitle>

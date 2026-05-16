@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, CheckCircle, XCircle, Eye, DollarSign } from "lucide-react";
+import { Plus, Calendar, CheckCircle, XCircle, Eye, DollarSign, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import AdminLayout from "@/components/admin/AdminLayout";
 import ImageUpload from "@/components/admin/ImageUpload";
@@ -18,7 +18,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogTrigger,
 } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface PopupSchedule {
   id: string;
@@ -43,6 +45,16 @@ const AdminPopupAds = () => {
   const [schedules, setSchedules] = useState<PopupSchedule[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [allListings, setAllListings] = useState<{ id: string; title: string }[]>([]);
+  
+  const [newAd, setNewAd] = useState({
+    listingId: "",
+    date: "",
+    slot: "1",
+    amount: "499",
+    proof: "",
+  });
   const [paymentDialog, setPaymentDialog] = useState<{ open: boolean; scheduleId: string | null }>({
     open: false,
     scheduleId: null,
@@ -86,10 +98,17 @@ const AdminPopupAds = () => {
       }
 
       setIsAdmin(true);
+      fetchSchedules();
+      fetchAllListings();
     } catch (error) {
       console.error("Error checking admin access:", error);
       navigate("/");
     }
+  };
+
+  const fetchAllListings = async () => {
+    const { data } = await supabase.from('listings').select('id, title').eq('status', 'active');
+    if (data) setAllListings(data);
   };
 
   const fetchSchedules = async () => {
@@ -185,6 +204,37 @@ const AdminPopupAds = () => {
     }
   };
 
+  const handleCreateAd = async () => {
+    if (!newAd.listingId || !newAd.date) {
+      toast({ title: "Error", description: "Please fill all required fields", variant: "destructive" });
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      const { error } = await supabase
+        .from('popup_ad_schedules')
+        .insert({
+          listing_id: newAd.listingId,
+          schedule_date: newAd.date,
+          slot_number: parseInt(newAd.slot),
+          payment_amount: parseFloat(newAd.amount),
+          payment_proof: newAd.proof,
+          payment_status: 'paid',
+          admin_approved: true
+        });
+
+      if (error) throw error;
+      toast({ title: "Success", description: "Popup ad created successfully" });
+      setNewAd({ listingId: "", date: "", slot: "1", amount: "499", proof: "" });
+      fetchSchedules();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Failed to create ad", variant: "destructive" });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   const groupByDate = (schedules: PopupSchedule[]) => {
     const grouped: Record<string, PopupSchedule[]> = {};
     schedules.forEach((schedule) => {
@@ -212,11 +262,70 @@ const AdminPopupAds = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Popup Ads Management</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage scheduled popup ads (max 3 per day)
-          </p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Popup Ads Management</h1>
+            <p className="text-muted-foreground mt-1">
+              Manage scheduled popup ads (max 3 per day)
+            </p>
+          </div>
+          
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Add New Popup Ad
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Create Manual Popup Ad</DialogTitle>
+                <DialogDescription>Add a popup ad schedule for an existing listing</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label>Select Listing *</Label>
+                  <Select value={newAd.listingId} onValueChange={(val) => setNewAd({...newAd, listingId: val})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Search listing..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allListings.map(l => <SelectItem key={l.id} value={l.id}>{l.title}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Schedule Date *</Label>
+                    <Input type="date" value={newAd.date} onChange={(e) => setNewAd({...newAd, date: e.target.value})} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Slot (1-3) *</Label>
+                    <Select value={newAd.slot} onValueChange={(val) => setNewAd({...newAd, slot: val})}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">Slot 1</SelectItem>
+                        <SelectItem value="2">Slot 2</SelectItem>
+                        <SelectItem value="3">Slot 3</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                   <ImageUpload 
+                      bucket="popup-ads"
+                      onUploadComplete={(url) => setNewAd({...newAd, proof: url})}
+                      label="Payment Proof (Optional)"
+                   />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button onClick={handleCreateAd} disabled={isCreating}>
+                  {isCreating ? <Loader2 className="animate-spin mr-2" /> : "Create Ad"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
 
         <div className="space-y-6">
