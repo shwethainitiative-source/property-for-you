@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Phone, Mail, MapPin, Calendar } from "lucide-react";
+import { ArrowLeft, Phone, Mail, MapPin, Calendar, Edit } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { useToast } from "@/hooks/use-toast";
 import ImageUpload from "@/components/admin/ImageUpload";
@@ -142,6 +142,10 @@ const AdminListingDetail = () => {
             Back
           </Button>
           <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate(`/admin/listings/edit/${listing.id}`)}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </Button>
             <Badge variant={listing.status === "active" ? "default" : "secondary"}>
               {listing.status}
             </Badge>

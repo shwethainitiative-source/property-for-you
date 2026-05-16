@@ -36,6 +36,7 @@ import AdminNews from "./pages/AdminNews";
 import AdminMessages from "./pages/AdminMessages";
 import AdminSettings from "./pages/AdminSettings";
 import AdminAddListing from "./pages/AdminAddListing";
+import AdminEditListing from "./pages/AdminEditListing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -67,6 +68,7 @@ const App = () => (
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/listings" element={<AdminListings />} />
           <Route path="/admin/listings/new" element={<AdminAddListing />} />
+          <Route path="/admin/listings/edit/:id" element={<AdminEditListing />} />
           <Route path="/admin/featured" element={<AdminFeatured />} />
           <Route path="/admin/popup-ads" element={<AdminPopupAds />} />
           <Route path="/admin/popup-ads/:id" element={<AdminPopupAdDetail />} />
